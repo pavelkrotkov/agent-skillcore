@@ -1,4 +1,4 @@
-"""Explicit fourth and fifth grants append records without resetting earlier runs."""
+"""Explicit bounded grants append records without resetting earlier runs."""
 import time
 
 from .receipts import encoded
@@ -14,13 +14,12 @@ def exhausted(db, publications, refresh, limit):
     return set(publications) <= mapped and count == limit and attempt_limit(db, refresh) == limit
 
 
-def grant(db, publications, reason, *, fifth=False):
+def grant(db, publications, reason, *, fifth=False, sixth=False):
     refresh = selection(publications)
     if not reason.strip() or len(reason) > 500:
         raise ValueError('concrete refresh recovery reason required')
     initialize(db)
-    limit = 4 if fifth else 3
-    table = 'wiki_refresh_extensions' if fifth else 'wiki_refresh_grants'
+    limit, table = grant_level(fifth, sixth)
     with db:
         db.execute('BEGIN IMMEDIATE')
         if db.execute("SELECT 1 FROM wiki_runs WHERE state='running' AND expires>?", (time.time(),)).fetchone():
@@ -30,3 +29,13 @@ def grant(db, publications, reason, *, fifth=False):
         db.execute(f'INSERT INTO {table} VALUES (?,?,?,?,?,?)',
                    (refresh, encoded(sorted(publications)).decode(), time.time(), reason, limit, limit + 1))
     return dict(state='checkpoint', refresh=refresh, attempt_limit=limit + 1)
+
+
+def grant_level(fifth, sixth):
+    levels = {(False, False): (3, 'wiki_refresh_grants'),
+              (True, False): (4, 'wiki_refresh_extensions'),
+              (False, True): (5, 'wiki_refresh_sixth_grants')}
+    try:
+        return levels[fifth, sixth]
+    except KeyError:
+        raise ValueError('select one explicit grant level') from None
