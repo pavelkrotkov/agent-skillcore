@@ -57,3 +57,41 @@ class ZKRefreshExtensionTests(RefreshRecoveryCase):
         result = grant(self.db, list(self.sources), 'Explicit upgraded fifth', fifth=True)
         self.assertEqual(result['attempt_limit'], 5)
         self.assert_history(before)
+
+    def test_explicit_sixth_preserves_fifth_and_cannot_allow_a_seventh(self):
+        self.exhaust_fourth()
+        grant(self.db, list(self.sources), 'Fifth approval', fifth=True)
+        wiki_store.fail(self.db, wiki_store.reserve(self.db, self.inputs), 'Fifth interrupted')
+        before = self.history()
+        fifth = list(self.db.execute('SELECT * FROM wiki_refresh_extensions'))
+        argv = ['x', '--state', str(self.root), 'zk-refresh', '--reason', 'Separate sixth approval', '--grant-sixth-attempt']
+        for source in self.sources:
+            argv.extend(['--publication', source])
+        with patch('sys.argv', argv), patch('x_curator.wiki.initial', side_effect=AssertionError('history load')):
+            result = wiki_refresh.command(self.db, arguments())
+        self.assertEqual(result['attempt_limit'], 6)
+        identity = wiki_store.reserve(self.db, self.inputs)
+        wiki_store.fail(self.db, identity, 'Sixth interrupted')
+        with self.assertRaisesRegex(ValueError, 'budget exhausted'):
+            wiki_store.reserve(self.db, self.inputs)
+        with self.assertRaises(ValueError):
+            grant(self.db, list(self.sources), 'Duplicate sixth approval', sixth=True)
+        self.assertEqual(list(self.db.execute('SELECT * FROM wiki_refresh_extensions')), fifth)
+        self.assert_history(before)
+
+    def test_sixth_rejects_missing_fifth_unspent_busy_and_withdrawn(self):
+        self.exhaust_fourth()
+        with self.assertRaises(ValueError):
+            grant(self.db, list(self.sources), 'Missing fifth', sixth=True)
+        grant(self.db, list(self.sources), 'Fifth approval', fifth=True)
+        with self.assertRaises(ValueError):
+            grant(self.db, list(self.sources), 'Unspent fifth', sixth=True)
+        identity = wiki_store.reserve(self.db, self.inputs)
+        with self.assertRaisesRegex(ValueError, 'active'):
+            grant(self.db, list(self.sources), 'Active fifth', sixth=True)
+        wiki_store.fail(self.db, identity, 'Fifth failed')
+        with self.db:
+            self.db.execute("UPDATE publications SET state='withdrawn-fixture' WHERE id=?", (self.publication,))
+        with self.assertRaises(ValueError):
+            grant(self.db, list(self.sources), 'Withdrawn fifth', sixth=True)
+        self.assertEqual(self.db.execute('SELECT count(*) FROM wiki_refresh_sixth_grants').fetchone()[0], 0)
