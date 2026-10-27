@@ -14,7 +14,7 @@ def reserve(db, inputs, identity, now):
             raise ValueError('refresh requires already organized publications')
         count = db.execute("SELECT count(*) FROM wiki_runs WHERE json_extract(input,'$.refresh')=?", (refresh,)).fetchone()[0]
         busy = db.execute("SELECT 1 FROM wiki_runs WHERE state='running' AND expires>?", (now,)).fetchone()
-        if count >= 3 or busy:
+        if count >= attempt_limit(db, refresh) or busy:
             raise ValueError('ZK refresh budget exhausted or organization already running')
         db.execute('INSERT INTO wiki_runs VALUES (?,?,?,?,?,?,NULL,NULL,NULL)',
                    (identity, encoded(inputs).decode(), digest(inputs), now, now + 600, 'running'))
@@ -23,3 +23,13 @@ def reserve(db, inputs, identity, now):
 
 def fingerprint(inputs):
     return digest([MODE, sorted(inputs['sources'])])
+
+
+def selection(publications):
+    if not 1 <= len(publications) <= 10 or len(set(publications)) != len(publications):
+        raise ValueError('select one to ten distinct retained publications')
+    return fingerprint({'sources': dict.fromkeys(publications)})
+
+
+def attempt_limit(db, refresh):
+    return 3 + db.execute('SELECT count(*) FROM wiki_refresh_grants WHERE refresh=?', (refresh,)).fetchone()[0]

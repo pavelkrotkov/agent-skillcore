@@ -13,7 +13,7 @@ def summary(result):
     if report:
         value['report'] = {key: report[key] for key in ('selected_sources', 'counts') if key in report}
         manifest = report.get('wiki', {}).get('manifest', {})
-        value['report']['generation'] = manifest.get('generation')
+        value['report']['generation'] = manifest.get('generation', report.get('generation'))
     return value
 
 
