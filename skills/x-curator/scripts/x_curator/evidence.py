@@ -50,7 +50,8 @@ def current_bundle(db, job, token):
     youtube_audit.verify_bundle(db, captures, job)
     from .prepared_video import verify as verify_prepared
     verify_prepared(db, captures, job)
-    validate_revision(captures, current)
+    from .publication_currentness import validate as validate_currentness
+    validate_currentness(db, token, captures, current)
     evidence = {"account": job["account"], "source": job["id"], "captures": captures}
     x_derived.verify(db, evidence)
     from .quick_articles import verify as verify_articles

@@ -39,6 +39,7 @@ def arguments():
     completion = commands.add_parser('complete-publication')
     completion.add_argument('publication')
     completion.add_argument('--reason', required=True)
+    completion.add_argument('--refresh-article', action='store_true', help='one authenticated detail request, hard 60s, to verify unchanged article; no source-check retry')
     diagnosis = commands.add_parser('diagnose-publication')
     diagnosis.add_argument('publication')
     mapping = commands.add_parser('recover-wiki')
