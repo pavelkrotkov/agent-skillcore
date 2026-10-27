@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-skillfleet"
+version = "0.1.0"
+description = "A Git-managed, locked skill distribution system for AI agents"
+requires-python = ">=3.10"
+dependencies = ["PyYAML>=6.0,<7"]
+
+[project.optional-dependencies]
+test = ["radon==6.0.1", "cognitive-complexity==1.3.0", "vulture==2.16", "mkdocs==1.6.1", "yt-dlp==2026.8.19"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.skillfleet.x-curator-speech-tunnel</string>
+  <key>ProgramArguments</key><array>
+    <string>/usr/bin/ssh</string><string>-NT</string>
+    <string>-o</string><string>BatchMode=yes</string>
+    <string>-o</string><string>StrictHostKeyChecking=yes</string>
+    <string>-o</string><string>ExitOnForwardFailure=yes</string>
+    <string>-o</string><string>ServerAliveInterval=30</string>
+    <string>-o</string><string>ServerAliveCountMax=3</string>
+    <string>-R</string><string>127.0.0.1:8768:127.0.0.1:8768</string>
+    <string>__SSH_DESTINATION__</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>30</integer>
+  <key>Umask</key><integer>63</integer>
+  <key>StandardOutPath</key><string>__HOME__/.local/state/x-curator-speech/tunnel.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/.local/state/x-curator-speech/tunnel-errors.log</string>
+</dict></plist>

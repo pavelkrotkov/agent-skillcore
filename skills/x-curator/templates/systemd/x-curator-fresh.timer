@@ -1,0 +1,11 @@
+[Unit]
+Description=Continue bounded fresh X research and future intake
+
+[Timer]
+OnStartupSec=60
+OnUnitInactiveSec=60
+AccuracySec=10
+Unit=x-curator-fresh.service
+
+[Install]
+WantedBy=timers.target

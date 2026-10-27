@@ -1,0 +1,11 @@
+[Unit]
+Description=Catch arrivals or interrupted indexing after a running wiki build
+
+[Timer]
+OnBootSec=30
+OnUnitInactiveSec=30
+AccuracySec=1
+Unit=x-curator-index.service
+
+[Install]
+WantedBy=timers.target

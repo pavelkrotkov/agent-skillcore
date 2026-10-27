@@ -1,0 +1,4 @@
+interface:
+  display_name: "Email Cleanup"
+  short_description: "Audit email clutter and reduce unwanted subscriptions"
+  default_prompt: "Use $email-cleanup to audit unwanted mail and apply the approved cleanup."

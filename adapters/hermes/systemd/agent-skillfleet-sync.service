@@ -1,0 +1,7 @@
+[Unit]
+Description=Synchronize the Skillfleet runtime
+
+[Service]
+Type=oneshot
+Environment=AGENT_SKILLFLEET_ROOT=%h/.local/share/agent-skillfleet
+ExecStart=%h/.local/share/agent-skillfleet/bin/skill-sync

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily bounded x-curator storage retention
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=15m
+Persistent=true
+Unit=x-curator-retention.service
+
+[Install]
+WantedBy=timers.target

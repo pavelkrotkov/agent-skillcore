@@ -1,0 +1,158 @@
+version: 1
+
+# External repositories are references, not vendored source.  The lockfile is
+# authoritative for what reaches the generated runtime.
+external:
+  - name: matt-code-review
+    repo: https://github.com/mattpocock/skills.git
+    path: skills/engineering/code-review
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: matt-tdd
+    repo: https://github.com/mattpocock/skills.git
+    path: skills/engineering/tdd
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: matt-improve-codebase-architecture
+    repo: https://github.com/mattpocock/skills.git
+    path: skills/engineering/improve-codebase-architecture
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: i-have-adhd
+    repo: https://github.com/ayghri/i-have-adhd.git
+    path: skills/i-have-adhd
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: ponytail
+    repo: https://github.com/DietrichGebert/ponytail.git
+    path: skills/ponytail
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: gh-stack
+    repo: https://github.com/github/gh-stack.git
+    path: skills/gh-stack
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: github-project-swarm
+    repo: https://github.com/pavelkrotkov/gh-swarm.git
+    path: skills/github-project-swarm
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: github-project-reviewer
+    repo: https://github.com/pavelkrotkov/gh-swarm.git
+    path: skills/github-project-reviewer
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: github-project-adjudicator
+    repo: https://github.com/pavelkrotkov/gh-swarm.git
+    path: skills/github-project-adjudicator
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  # HumanLayer portable skills (MIT); native plugin files are not deployed.
+  - name: build-iterated-agentic-loop
+    repo: https://github.com/humanlayer/skills.git
+    path: plugins/build-iterated-agentic-loop/skills/build-iterated-agentic-loop
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: design-control-loop
+    repo: https://github.com/humanlayer/skills.git
+    path: plugins/design-control-loop/skills/design-control-loop
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: improve-claude-md
+    repo: https://github.com/humanlayer/skills.git
+    path: plugins/improve-claude-md/skills/improve-claude-md
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: narrow-react-prop-types
+    repo: https://github.com/humanlayer/skills.git
+    path: plugins/narrow-react-prop-types/skills/narrow-react-prop-types
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: show-me
+    repo: https://github.com/humanlayer/skills.git
+    path: plugins/show-me/skills/show-me
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+  - name: visual-pr
+    repo: https://github.com/humanlayer/skills.git
+    path: plugins/visual-pr/skills/visual-pr
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
+# Native commands are intentionally absent.  If a package later needs one,
+# declare it under native.<agent> and review it before using --allow-native.

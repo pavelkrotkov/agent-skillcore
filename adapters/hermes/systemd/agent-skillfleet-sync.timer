@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Skillfleet synchronization daily
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=24h
+Persistent=true
+Unit=agent-skillfleet-sync.service
+
+[Install]
+WantedBy=timers.target

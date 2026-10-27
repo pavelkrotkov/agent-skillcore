@@ -1,0 +1,4 @@
+interface:
+  display_name: "Volleyball Video Analysis"
+  short_description: "Review player clips, GIFs and court movement"
+  default_prompt: "Use $volleyball-video-analysis to turn match footage into confirmed player clips, full-body GIFs and synchronized court diagrams."

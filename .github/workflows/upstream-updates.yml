@@ -1,0 +1,59 @@
+name: Check upstream skills
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check 'PyYAML>=6,<7'
+      - name: Resolve and validate candidate
+        run: bin/skill-update --apply
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet -- external/skills.lock; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Create reviewed update PR
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="automation/external-skill-updates"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          {
+            echo '## External skill update'
+            echo
+            echo 'The candidate lockfile was resolved and validated by Skillfleet.'
+            echo
+            echo '```text'
+            bin/skill-diff --old external/skills.lock --new external/skills.lock.candidate || true
+            echo '```'
+            echo
+            echo 'Review `SKILL.md`, script, executable-mode, and native-operation changes before merging.'
+          } > /tmp/skillfleet-update-pr.md
+          git add external/skills.lock
+          git commit -m 'Update locked external skills'
+          git push --force-with-lease --set-upstream origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title 'Update locked external skills' \
+            --body-file /tmp/skillfleet-update-pr.md

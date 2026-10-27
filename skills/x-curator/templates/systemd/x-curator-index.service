@@ -1,0 +1,19 @@
+[Unit]
+Description=Index pending verified X publications without model calls
+After=network-online.target
+
+[Service]
+Type=oneshot
+UMask=0077
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=%h/.config/x-curator-fresh/runtime.env
+ExecStart=%h/.local/state/x-curator-runtime/bin/python -m x_curator --state ${CURATOR_STATE} index-pending
+TimeoutStartSec=1200
+TimeoutStopSec=20
+KillMode=control-group
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=%h/.local/state
+StandardOutput=null
+StandardError=null

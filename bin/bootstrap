@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="${AGENT_SKILLFLEET_ROOT:-$(cd -- "$SCRIPT_DIR/.." && pwd)}"
+for arg in "$@"; do
+    if [ "$arg" = "--dry-run" ]; then
+        echo "would create the Skillfleet virtual environment if dependencies are missing"
+        echo "would create cache, runtime, and state directories for $ROOT"
+        echo "would materialize and validate the locked runtime, then install managed links"
+        exit 0
+    fi
+done
+if [ -n "${AGENT_SKILLFLEET_PYTHON:-}" ]; then
+    PYTHON="$AGENT_SKILLFLEET_PYTHON"
+elif [ -x "$ROOT/.venv/bin/python" ]; then
+    PYTHON="$ROOT/.venv/bin/python"
+elif python3 -c 'import yaml' >/dev/null 2>&1; then
+    PYTHON="python3"
+else
+    PYTHON="$ROOT/.venv/bin/python"
+    python3 -m venv "$ROOT/.venv"
+    "$PYTHON" -m pip install --disable-pip-version-check -e "$ROOT"
+fi
+exec "$PYTHON" "$ROOT/src/agent_skillfleet/cli.py" --repo "$ROOT" bootstrap "$@"

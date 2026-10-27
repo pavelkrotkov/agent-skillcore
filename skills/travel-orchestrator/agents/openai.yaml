@@ -1,0 +1,7 @@
+interface:
+  display_name: "Travel Orchestrator"
+  short_description: "Route travel searches and verify finalists"
+  default_prompt: "Use $travel-orchestrator to find realistic travel options with all-in costs and verified finalists."
+
+policy:
+  allow_implicit_invocation: true

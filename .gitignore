@@ -1,0 +1,18 @@
+# Generated runtime, cache, state, and candidate files
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+external/skills.lock.candidate
+runtime/
+.coverage
+dist/
+build/
+*.egg-info/
+
+# Local machine/editor files
+.DS_Store
+.env
+
+# Private migration and isolated validation state
+.migration/

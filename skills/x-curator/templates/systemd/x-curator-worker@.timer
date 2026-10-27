@@ -1,0 +1,11 @@
+[Unit]
+Description=Continue one bounded X backlog worker
+
+[Timer]
+OnStartupSec=60
+OnUnitInactiveSec=5
+AccuracySec=1
+Unit=x-curator-worker@%i.service
+
+[Install]
+WantedBy=timers.target
