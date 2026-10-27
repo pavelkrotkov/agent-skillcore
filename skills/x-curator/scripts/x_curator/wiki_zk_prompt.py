@@ -63,10 +63,21 @@ This is the same complete evidence, not permission to infer missing facts or omi
 '''
 
 
+RETAINED = '''For retained_assignments catalog/v1 refreshes, the earlier every-source-claim rule
+means coverage across the incremental proposal AND complete unchanged supplied catalog notes.
+Claims already assigned in such notes need not be repeated or those notes resubmitted. Leave
+optional notes outside the requested scope unchanged; they remain in the wiki with their evidence.
+Notes rewritten in this proposal or retired through replaces do NOT count as unchanged coverage.
+Explicitly assign every otherwise uncovered selected claim. Rewritten or consolidated notes still
+require all their existing evidence and independent editorial approval. This grants no new attempts.
+'''
+
+
 def instructions(inputs, final=False):
     text = ZK if inputs.get('organization') == 'zettelkasten/v1' else ''
     text += LINKS if inputs.get('link_support') == 'target-evidence/v1' else ''
     text += COMPACT if inputs.get('catalog_projection') == 2 else ''
+    text += RETAINED if inputs.get('retained_assignments') == 'catalog/v1' else ''
     if final:
         from .wiki_final import INSTRUCTIONS
         text += INSTRUCTIONS
