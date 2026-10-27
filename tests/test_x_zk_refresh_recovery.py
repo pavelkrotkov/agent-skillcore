@@ -2,31 +2,14 @@ from unittest.mock import patch
 import json
 import time
 
-from x_wiki_fixtures import WikiCase
-from x_wiki_arrival_fixtures import publish_arrival
-from x_curator import wiki_inputs, wiki_refresh, wiki_store
+from x_zk_refresh_fixtures import RefreshRecoveryCase
+from x_curator import wiki_refresh, wiki_store
 from x_curator.cli import arguments
-from x_curator.wiki_catalog import prepare
 from x_curator.wiki_mapping import map_sources
 from x_curator.wiki_refresh_recovery import grant
 
 
-class ZKRefreshRecoveryTests(WikiCase):
-    def setUp(self):
-        super().setUp()
-        arrival = publish_arrival(self.db, self.root)
-        self.sources = wiki_inputs.sources(self.db, self.root)
-        self.inputs = prepare(self.sources, {}, list(self.sources))
-        self.mapping['pages'][0]['claims'].append({'publication': arrival, 'claim': 'c1'})
-        with patch('x_curator.wiki_mapping.runner', return_value=self.feedback_response):
-            map_sources(self.db, self.inputs)
-        self.inputs = prepare(self.sources, wiki_inputs.mappings(self.db, self.sources), list(self.sources))
-        self.inputs.update(refresh=wiki_refresh.fingerprint(self.inputs), refresh_reason='Synthetic refresh')
-
-    def exhaust(self):
-        for _ in range(3):
-            wiki_store.fail(self.db, wiki_store.reserve(self.db, self.inputs), 'Synthetic interrupted organization')
-
+class ZKRefreshRecoveryTests(RefreshRecoveryCase):
     def test_cli_grant_allows_only_fourth_and_preserves_history(self):
         self.exhaust()
         history = list(self.db.execute('SELECT * FROM wiki_runs ORDER BY id'))
