@@ -5,6 +5,7 @@ from .wiki_refs import validate_page
 from .wiki_link_support import connected
 from .wiki_prompts import proposal_capacity
 from . import wiki_notes, wiki_note_contract
+from .wiki_retained_assignments import retained
 
 
 def validate(packet, inputs):
@@ -21,7 +22,7 @@ def validate(packet, inputs):
     identities(pages, keys, inputs)
     if keys & set(inputs['known_keys']) - set(catalog):
         raise ValueError('existing page meaning was absent from reviewed catalog')
-    assigned = set()
+    assigned = retained(inputs, pages)
     for page in pages:
         assigned.update(validate_page(page, claims, keys | set(catalog)))
         wiki_note_contract.validate(page, catalog, keys, inputs.get('organization') == wiki_notes.MODE)

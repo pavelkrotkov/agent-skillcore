@@ -39,3 +39,16 @@ class ZKRefreshTests(WikiCase):
             with self.assertRaisesRegex(ValueError, 'one to ten'):
                 wiki_refresh.command(self.db, args)
         load.assert_not_called()
+
+    def test_refresh_opts_into_retained_coverage_without_changing_selection(self):
+        snapshot = SimpleNamespace(values=(self.sources, {}, {}))
+        args = SimpleNamespace(publication=[self.publication], page=[], state=self.root, reason='Synthetic refresh')
+        with patch('x_curator.wiki.initial', return_value=(snapshot, None)), \
+                patch('x_curator.wiki_mapping.map_sources', return_value='run') as mapping, \
+                patch('x_curator.wiki_index_result.publish', return_value={}), \
+                patch('x_curator.wiki_input_load.Snapshot'):
+            wiki_refresh.command(self.db, args)
+        inputs = mapping.call_args.args[1]
+        self.assertEqual(inputs['retained_assignments'], 'catalog/v1')
+        self.assertEqual(inputs['refresh'], wiki_refresh.fingerprint(self.inputs))
+        self.assertEqual(set(inputs['sources']), {self.publication})
