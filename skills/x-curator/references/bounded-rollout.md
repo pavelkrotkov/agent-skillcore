@@ -146,6 +146,16 @@ history, retains the first completion receipt and appends a hashed reinstatement
 event. Repeating a successful request revalidates without duplicating an event.
 Diagnosis alone never reinstates a page; missing or invalid proof remains withheld.
 
+For an unchanged article omitted by a later sparse collection, explicitly add
+`--refresh-article`. This makes one authenticated detail request for the original
+account and post under a hard 60-second verification deadline, and retains the
+controller's response before validating it. Caller-supplied bodies or timestamps
+cannot qualify. The full original article text and metadata and substantive post
+content must match; the qualification covers only that exact latest collection
+receipt. A later collection needs fresh verification. Original native approval,
+source evidence and rendered publication proof remain mandatory. This performs
+no model work, source-check retry or research, and grants no extra attempts.
+
 ## Rollback
 
 Stop affected services and retain all data, receipts, decisions and consumed budgets.

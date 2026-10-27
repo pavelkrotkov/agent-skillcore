@@ -8,7 +8,7 @@ def command(db, args):
         from .wiki_recovery import grant as mapping_grant
         return mapping_grant(db, args.publication, args.reason)
     from .publication_recovery import complete
-    return complete(db, args.state, args.publication, args.reason)
+    return complete(db, args.state, args.publication, args.reason, getattr(args, 'refresh_article', False))
 
 
 def initialize(db):

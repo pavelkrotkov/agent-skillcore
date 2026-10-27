@@ -1,5 +1,6 @@
 """Bind a separate review execution to this exact proposal and evidence revision."""
-from .evidence import bundle, validate_revision
+from .evidence import bundle
+from .publication_currentness import validate as validate_revision
 from .executions import verified_execution
 from .packets import validate
 from .receipts import digest
@@ -23,7 +24,7 @@ def validate_approval(db, token, proposal_id, review_id, evidence):
             packet, verdict = reviewed(db, token, proposal_id, review_id, evidence)
             if verdict != {"verdict": "approve", "proposal_sha": digest(packet), "bundle_sha": digest(evidence), "findings": []}:
                 raise ValueError("independent review has not approved the exact proposal")
-    validate_revision(evidence['captures'], selected_source(db, db.execute(
+    validate_revision(db, token, evidence['captures'], selected_source(db, db.execute(
         'SELECT * FROM jobs WHERE account=? AND id=?', (evidence['account'], evidence['source'])).fetchone()), packet)
     return packet, evidence
 

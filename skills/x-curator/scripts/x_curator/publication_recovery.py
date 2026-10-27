@@ -10,10 +10,13 @@ from .receipts import digest, encoded
 
 
 @timed("source.recovery", scope="selected")
-def complete(db, root, identity, reason):
+def complete(db, root, identity, reason, refresh_article=False):
     if not reason.strip() or len(reason) > 500:
         raise ValueError('concrete publication recovery reason required')
     initialize(db)
+    if refresh_article:
+        from .publication_qualification import qualify
+        qualify(db, identity, reason)
     row, job, previous, packet, evidence, reads, stamp = proof(db, root, identity)
     receipt = dict(publication=identity, reason=reason, prior_job=job, prior_publication_state=row['state'], proposal=row['proposal'], review=row['review'],
                    packet_sha=digest(packet), bundle_sha=digest(evidence), body_sha=row['sha'], completed=time.time())
