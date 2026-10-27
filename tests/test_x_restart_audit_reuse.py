@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 import subprocess
 import sys
 from unittest.mock import patch
@@ -26,8 +25,9 @@ class RestartAuditTests(PublicationCase):
 
     def test_unsigned_memo_never_reaches_deserialization(self):
         path, _ = audit_memo.target(self.root, ('publication', self.publication))
-        body = path.read_bytes()
-        path.write_bytes(b'!' + body[1:])
+        body = bytearray(path.read_bytes())
+        body[0] ^= 1
+        path.write_bytes(body)
         audit_reuse._CACHE.clear()
         with patch('x_curator.audit_seal.loads', side_effect=AssertionError('untrusted deserialize')):
             self.assertEqual(wiki_inputs.sources(self.db, self.root), self.sources)

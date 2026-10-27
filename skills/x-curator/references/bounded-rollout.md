@@ -69,6 +69,15 @@ Do not activate this default until #273 records a passing representative qualifi
 and reviewed activation decision. The supervisor default keeps semantic organization
 disabled with `--max-sources 0`.
 
+For an exact retained selection, `zk-refresh --grant-extra-attempt` records a
+separately approved fourth organization attempt. After that attempt is spent,
+`zk-refresh --grant-fifth-attempt` requires another explicit approval and records
+one fifth attempt in a separate ledger. Both commands require the same
+`--publication` selection and a concrete `--reason`; they run no models and change
+no fact-check allowance or deadline. The fifth command preserves the original
+grant and receipts, rejects active or withdrawn selections, and cannot grant a
+sixth attempt. A resume request alone does not approve either allowance.
+
 Pin `PYTHONPATH` to the reviewed code directory in the existing private runtime
 configuration. Install the reviewed `templates/systemd/x-curator-worker@.service`:
 240-second crash-recovery lease and outer timeout (quick checks remain capped at 120 seconds for text or 180 for verified prepared video), full process-group termination, and deferred indexing with `--unspent-only`. This mode holds previously attempted pending/retry or expired jobs for explicit operator recovery; both batch readiness and transactional claims exclude them. It preserves consumed receipts and existing approved recovery tools. Install the
