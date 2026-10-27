@@ -153,3 +153,16 @@ state's `ops/` directory and clean it on exit. Keep only compact result receipts
 copy the minimum fixtures required, never entire `runs/`, backup or qualification trees.
 Existing unregistered operational directories require explicit inspection; retention
 never guesses whether their contents are unique source evidence.
+
+### Opt-in recurring article currentness
+
+`configure-article-currentness --publication ID --reason APPROVAL` records explicit
+recurring permission for one previously qualified and recovered article. No article
+is enabled by default. After intake invalidates an older sparse-collection proof,
+the supervisor may reserve one authenticated detail request per new collection.
+That reservation survives crashes and consumes the existing intake request budget;
+the request has a 60-second hard limit within the collection's original deadline.
+Changed content or a failed request stays held. Original native approval, full
+article/body/version and collection-currentness checks still apply; this neither
+retries a source check nor authorizes research. The per-collection request outcome
+is retained in `article_refresh_requests`.

@@ -25,7 +25,7 @@ def poll(db, client, kind):
 
 def advance(db, client, run, receipt):
     known = set(json.loads(receipt['known']))
-    while run['state'] == 'collecting' and run['requests'] < receipt['request_limit']:
+    while run['state'] == 'collecting' and requests_left(db, run['id']) > 0:
         with until(time.time() + 60):
             run = request_page(db, client, run)
         if intake_store.frontier(db, run, known):
@@ -33,3 +33,8 @@ def advance(db, client, run, receipt):
         time.sleep(1)
     action = 'head-poll request budget exhausted; inspect retained responses' if run['state'] == 'collecting' else None
     intake_store.finish(db, run['id'], action)
+
+
+def requests_left(db, run):
+    from .article_refresh_store import remaining
+    return remaining(db, run)
