@@ -21,6 +21,9 @@ def initialize(db):
         CREATE TABLE IF NOT EXISTS wiki_recovery_grants (
             id TEXT PRIMARY KEY,publication TEXT NOT NULL REFERENCES wiki_sources(publication),
             created REAL NOT NULL,reason TEXT NOT NULL,limit_before INTEGER NOT NULL,limit_after INTEGER NOT NULL);
+        CREATE TABLE IF NOT EXISTS wiki_refresh_grants (
+            refresh TEXT PRIMARY KEY,publications TEXT NOT NULL,created REAL NOT NULL,
+            reason TEXT NOT NULL,limit_before INTEGER NOT NULL,limit_after INTEGER NOT NULL);
     ''')
 
 

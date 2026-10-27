@@ -1,6 +1,6 @@
 from x_retention_fixtures import RetentionCase
 import json
-from x_curator import cycle_store, retention
+from x_curator import cycle_store, retention, retention_history
 
 
 class HistoryRetentionTests(RetentionCase):
@@ -13,12 +13,14 @@ class HistoryRetentionTests(RetentionCase):
         stored = self.db.execute('SELECT result FROM cycles').fetchone()[0]
         self.assertLess(len(stored), 2000)
         self.assertEqual(json.loads(stored)['work']['dependency'], {'ready': False})
+        self.assertEqual(retention_history.summary(json.loads(stored)), json.loads(stored))
         self.assertEqual(len(result['report']['sources']), 10000)
 
     def test_historical_cycle_compaction_preserves_rows_and_attempt_budgets(self):
         self.build(1, current=True)
         identity, _ = cycle_store.begin(self.db, 30)
-        result = dict(state='checkpoint', report=dict(counts={'published': 1}, sources=['large'] * 1000))
+        result = dict(state='checkpoint', report=dict(counts={'published': 1}, sources=['large'] * 1000,
+                                                    wiki={'manifest': {'generation': 'retained'}}))
         self.db.execute('UPDATE cycles SET finished=?,result=? WHERE id=?',
                         (self.now - 40 * 86400, json.dumps(result), identity))
         self.db.commit()
@@ -29,3 +31,5 @@ class HistoryRetentionTests(RetentionCase):
         stored = json.loads(self.db.execute('SELECT result FROM cycles').fetchone()[0])
         self.assertEqual(stored['report']['counts'], {'published': 1})
         self.assertNotIn('sources', stored['report'])
+        self.assertEqual(stored['report']['generation'], 'retained')
+        self.assertEqual(retention.run(self.db, self.root, apply=True)['history']['records'], 0)

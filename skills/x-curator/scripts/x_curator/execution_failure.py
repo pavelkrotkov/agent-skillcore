@@ -28,7 +28,7 @@ def provider_failure(error, log):
     if isinstance(error, WorkerFailure):
         return str(error)
     if isinstance(error, DeadlineExceeded) and transport_exhausted(log):
-        return 'subscription stream reconnections exhausted before execution deadline'
+        return 'subscription provider retries exhausted before execution deadline'
 
 
 def transport_exhausted(log):
@@ -36,7 +36,8 @@ def transport_exhausted(log):
         rows = events(log)
         return not any(row.get('type') == 'turn.completed' for row in rows) and any(
             row.get('type') == 'error' and re.match(
-                r'Reconnecting\.\.\. (\d+)/\1 \(stream disconnected before completion:',
+                r'Reconnecting\.\.\. (?:(\d+)/\1 \(stream disconnected before completion:'
+                r'|\d+/\d+ \(exceeded retry limit, last status: 429 Too Many Requests[,\)])',
                 row.get('message', '')) for row in rows)
     except (ValueError, UnicodeError, TypeError, AttributeError):
         return False

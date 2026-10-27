@@ -1,13 +1,15 @@
 """Explicit, bounded organization of retained publications; no fact-check retries."""
-from .wiki_refresh_store import fingerprint
+from .wiki_refresh_store import fingerprint, selection
 
 
 def command(db, args):
     from . import wiki, wiki_catalog, wiki_index_result, wiki_mapping
     from .wiki_input_load import Snapshot
     selected = args.publication
-    if not 1 <= len(selected) <= 10 or len(set(selected)) != len(selected):
-        raise ValueError('select one to ten distinct retained publications')
+    selection(selected)
+    if getattr(args, 'grant_extra_attempt', False):
+        from .wiki_refresh_recovery import grant
+        return grant(db, selected, args.reason)
     snapshot, _ = wiki.initial(db, args.state)
     current, _, pages = snapshot.values
     if not set(selected) <= set(current):

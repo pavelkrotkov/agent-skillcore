@@ -1,6 +1,6 @@
 """Only separately reviewed, authentic model events can classify source claims."""
 
-from . import wiki_store, provider_health
+from . import wiki_store, provider_health, execution_failure
 from .codex_runner import runner
 from .deadlines import until, DeadlineExceeded
 from .model_events import result
@@ -38,8 +38,8 @@ def map_sources(db, inputs):
             invoke(db, identity, 'review', inputs, call, packet)
             accept(db, identity)
     except Exception as exc:
-        if isinstance(exc, WorkerFailure):
-            provider_health.suspend(db, str(exc))
+        if failure := execution_failure.provider_failure(exc, getattr(exc, 'log', b'')):
+            provider_health.suspend(db, failure)
         wiki_store.fail(db, identity, f'{type(exc).__name__}: {str(exc)[:300]}')
         raise
     return identity

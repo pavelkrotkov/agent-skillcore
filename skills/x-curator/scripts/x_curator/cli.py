@@ -63,6 +63,7 @@ def arguments():
     refresh.add_argument('--publication', action='append', required=True)
     refresh.add_argument('--page', action='append', default=[], help='required existing note key')
     refresh.add_argument('--reason', required=True)
+    refresh.add_argument('--grant-extra-attempt', action='store_true', help='grant one exhausted selection attempt without running models')
     supervisor = commands.add_parser('supervise')
     supervisor.add_argument('--max-items', type=int, default=2)
     supervisor.add_argument('--max-sources', type=int, default=0)
