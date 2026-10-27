@@ -8,7 +8,7 @@ from .prepared_proof import eligible
 from .publication_recovery_store import recovery
 
 
-def qualify(db, publication, reason):
+def qualify(db, publication, reason, *, acquire_detail=None):
     initialize(db)
     row = db.execute('SELECT p.*,e.token FROM publications p JOIN executions e ON e.id=p.proposal WHERE p.id=?', (publication,)).fetchone()
     if row is None or row['state'] != 'invalid':
@@ -16,7 +16,7 @@ def qualify(db, publication, reason):
     job = db.execute('SELECT * FROM jobs WHERE account=? AND id=?', (row['account'], row['source'])).fetchone()
     eligible(row, job, recovery(db, publication))
     current = selected_source(db, job)
-    receipt = dict(acquire(db, row), publication=publication, reason=reason, selection=selection(current))
+    receipt = dict((acquire_detail or acquire)(db, row), publication=publication, reason=reason, selection=selection(current))
     captures = {c['id']: json.loads(c['payload']) for c in db.execute('SELECT * FROM captures WHERE token=?', (row['token'],))}
     with db:
         db.execute('INSERT INTO publication_currentness VALUES (?,?,?)', (digest(receipt), publication, encoded(receipt).decode()))

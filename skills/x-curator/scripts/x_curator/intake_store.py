@@ -9,6 +9,8 @@ def initialize(db):
     db.execute('''CREATE TABLE IF NOT EXISTS intake_runs (
         run TEXT PRIMARY KEY REFERENCES collections(id),known TEXT NOT NULL,
         request_limit INTEGER NOT NULL,deadline REAL NOT NULL,finished REAL)''')
+    from .article_refresh_store import initialize as refresh_initialize
+    refresh_initialize(db)
 
 
 def begin(db, client, kind):

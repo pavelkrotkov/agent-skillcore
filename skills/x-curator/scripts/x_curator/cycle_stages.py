@@ -22,6 +22,9 @@ def phases(db, root, client, identity, max_items, max_sources, deadline, result)
         receipts(db)
         wiki_store.initialize(db)
         result['invalidated'] = audit(db, root)
+        from .article_refresh import run as refresh_articles
+        with lockfile(root, '.collector.lock'), lockfile(root, '.publication-recovery.lock'):
+            result['article_currentness'] = refresh_articles(db, root, client)
     cycle_store.stage(db, identity, 'research')
     if max_items:
         with span(db, 'cycle.research', scope='selected', concurrency=max_items):
