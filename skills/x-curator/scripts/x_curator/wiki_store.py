@@ -32,6 +32,10 @@ def initialize(db):
             refresh TEXT PRIMARY KEY REFERENCES wiki_refresh_extensions(refresh),publications TEXT NOT NULL,
             created REAL NOT NULL,reason TEXT NOT NULL,
             limit_before INTEGER NOT NULL CHECK(limit_before=5),limit_after INTEGER NOT NULL CHECK(limit_after=6));
+        CREATE TABLE IF NOT EXISTS wiki_refresh_seventh_grants (
+            refresh TEXT PRIMARY KEY REFERENCES wiki_refresh_sixth_grants(refresh),publications TEXT NOT NULL,
+            created REAL NOT NULL,reason TEXT NOT NULL,
+            limit_before INTEGER NOT NULL CHECK(limit_before=6),limit_after INTEGER NOT NULL CHECK(limit_after=7));
     ''')
 
 

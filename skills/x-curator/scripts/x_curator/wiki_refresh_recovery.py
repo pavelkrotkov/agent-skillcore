@@ -14,12 +14,12 @@ def exhausted(db, publications, refresh, limit):
     return set(publications) <= mapped and count == limit and attempt_limit(db, refresh) == limit
 
 
-def grant(db, publications, reason, *, fifth=False, sixth=False):
+def grant(db, publications, reason, *, fifth=False, sixth=False, seventh=False):
     refresh = selection(publications)
     if not reason.strip() or len(reason) > 500:
         raise ValueError('concrete refresh recovery reason required')
     initialize(db)
-    limit, table = grant_level(fifth, sixth)
+    limit, table = grant_level(fifth, sixth, seventh)
     with db:
         db.execute('BEGIN IMMEDIATE')
         if db.execute("SELECT 1 FROM wiki_runs WHERE state='running' AND expires>?", (time.time(),)).fetchone():
@@ -31,11 +31,12 @@ def grant(db, publications, reason, *, fifth=False, sixth=False):
     return dict(state='checkpoint', refresh=refresh, attempt_limit=limit + 1)
 
 
-def grant_level(fifth, sixth):
-    levels = {(False, False): (3, 'wiki_refresh_grants'),
-              (True, False): (4, 'wiki_refresh_extensions'),
-              (False, True): (5, 'wiki_refresh_sixth_grants')}
+def grant_level(fifth, sixth, seventh=False):
+    levels = {(False, False, False): (3, 'wiki_refresh_grants'),
+              (True, False, False): (4, 'wiki_refresh_extensions'),
+              (False, True, False): (5, 'wiki_refresh_sixth_grants'),
+              (False, False, True): (6, 'wiki_refresh_seventh_grants')}
     try:
-        return levels[fifth, sixth]
+        return levels[fifth, sixth, seventh]
     except KeyError:
         raise ValueError('select one explicit grant level') from None
