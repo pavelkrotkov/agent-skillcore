@@ -71,6 +71,7 @@ def arguments():
     grants.add_argument('--grant-extra-attempt', action='store_true', help='grant an exhausted selection its fourth attempt without models')
     grants.add_argument('--grant-fifth-attempt', action='store_true', help='record separate explicit approval for an exhausted selection fifth attempt')
     grants.add_argument('--grant-sixth-attempt', action='store_true', help='record separate explicit approval for an exhausted selection sixth attempt')
+    grants.add_argument('--grant-seventh-attempt', action='store_true', help='record separate explicit approval for an exhausted selection seventh attempt')
     supervisor = commands.add_parser('supervise')
     supervisor.add_argument('--max-items', type=int, default=2)
     supervisor.add_argument('--max-sources', type=int, default=0)

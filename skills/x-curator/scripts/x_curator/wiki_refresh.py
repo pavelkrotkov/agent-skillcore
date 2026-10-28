@@ -11,9 +11,10 @@ def command(db, args):
     selection(selected)
     fifth = getattr(args, 'grant_fifth_attempt', False)
     sixth = getattr(args, 'grant_sixth_attempt', False)
-    if getattr(args, 'grant_extra_attempt', False) or fifth or sixth:
+    seventh = getattr(args, 'grant_seventh_attempt', False)
+    if getattr(args, 'grant_extra_attempt', False) or fifth or sixth or seventh:
         from .wiki_refresh_recovery import grant
-        return grant(db, selected, args.reason, fifth=fifth, sixth=sixth)
+        return grant(db, selected, args.reason, fifth=fifth, sixth=sixth, seventh=seventh)
     snapshot, _ = wiki.initial(db, args.state)
     current, _, pages = snapshot.values
     if not set(selected) <= set(current):
