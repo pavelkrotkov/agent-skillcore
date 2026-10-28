@@ -23,7 +23,7 @@ class RetainedAssignmentTests(TestCase):
             validate(dict(self.packet(), input_sha=digest(historical)), historical)
         expected = wiki_zk_prompt.ZK + wiki_zk_prompt.LINKS + wiki_zk_prompt.COMPACT
         self.assertEqual(wiki_zk_prompt.instructions(historical), expected)
-        self.assertEqual(wiki_zk_prompt.instructions(self.inputs), expected + wiki_zk_prompt.RETAINED)
+        self.assertEqual(wiki_zk_prompt.instructions(self.inputs), expected + wiki_zk_prompt.RETAINED_HIDDEN)
 
     def test_incomplete_or_uncovered_catalog_claim_still_requires_assignment(self):
         for change in ('incomplete', 'uncovered'):
@@ -46,7 +46,7 @@ class RetainedAssignmentTests(TestCase):
             validate(packet, self.inputs)
 
     def test_opt_in_is_bound_to_explicit_refresh_identity_and_version(self):
-        for change in ({'retained_assignments': 'catalog/v2'}, {'refresh': None}, {'organization': None}):
+        for change in ({'retained_assignments': 'catalog/v3'}, {'refresh': None}, {'organization': None}):
             inputs = dict(self.inputs, **change)
             with self.subTest(change=change), self.assertRaisesRegex(ValueError, 'retained assignment contract'):
                 validate(dict(self.packet(), input_sha=digest(inputs)), inputs)

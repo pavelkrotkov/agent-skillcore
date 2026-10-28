@@ -1,6 +1,7 @@
 """Explicit, bounded organization of retained publications; no fact-check retries."""
 from .wiki_refresh_store import fingerprint, selection
 from .wiki_retained_assignments import VERSION
+from .wiki_retained_catalog import omitted
 
 
 def command(db, args):
@@ -18,7 +19,8 @@ def command(db, args):
     if not set(selected) <= set(current):
         raise ValueError('refresh requires current accepted publications')
     inputs = wiki_catalog.prepare(current, pages, selected, args.page)
-    inputs.update(refresh=fingerprint(inputs), refresh_reason=args.reason, retained_assignments=VERSION)
+    inputs.update(refresh=fingerprint(inputs), refresh_reason=args.reason, retained_assignments=VERSION,
+                  retained_catalog_assignments=omitted(pages,inputs['catalog'],set(selected)))
     identity = wiki_mapping.map_sources(db, inputs)
     result = wiki_index_result.publish(db, args.state, Snapshot(db, args.state, 'zk_refresh'))
     return dict(result, organization_run=identity)

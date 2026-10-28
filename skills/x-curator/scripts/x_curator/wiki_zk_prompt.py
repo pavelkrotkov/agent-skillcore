@@ -73,11 +73,17 @@ require all their existing evidence and independent editorial approval. This gra
 '''
 
 
+RETAINED_HIDDEN = RETAINED.replace('catalog/v1','catalog/v2') + '''The controller-bound retained_catalog_assignments records selected-source claims already assigned
+in verified unchanged notes outside the editable catalog window. They count toward coverage without
+rewriting those notes. These compact records provide no editable meaning and are not new link targets.
+Only the full catalog and proposed notes are editable or valid targets; preserve all existing evidence.
+'''
+
 def instructions(inputs, final=False):
     text = ZK if inputs.get('organization') == 'zettelkasten/v1' else ''
     text += LINKS if inputs.get('link_support') == 'target-evidence/v1' else ''
     text += COMPACT if inputs.get('catalog_projection') == 2 else ''
-    text += RETAINED if inputs.get('retained_assignments') == 'catalog/v1' else ''
+    text += {'catalog/v1':RETAINED,'catalog/v2':RETAINED_HIDDEN}.get(inputs.get('retained_assignments'),'')
     if final:
         from .wiki_final import INSTRUCTIONS
         text += INSTRUCTIONS
