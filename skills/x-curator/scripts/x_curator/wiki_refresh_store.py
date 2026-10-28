@@ -35,4 +35,5 @@ def attempt_limit(db, refresh):
     return 3 + db.execute('''SELECT (SELECT count(*) FROM wiki_refresh_grants WHERE refresh=?) +
         (SELECT count(*) FROM wiki_refresh_extensions WHERE refresh=?) +
         (SELECT count(*) FROM wiki_refresh_sixth_grants WHERE refresh=?) +
-        (SELECT count(*) FROM wiki_refresh_seventh_grants WHERE refresh=?)''', (refresh,) * 4).fetchone()[0]
+        (SELECT count(*) FROM wiki_refresh_seventh_grants WHERE refresh=?) +
+        (SELECT count(*) FROM wiki_refresh_eighth_grants WHERE refresh=?)''', (refresh,) * 5).fetchone()[0]
