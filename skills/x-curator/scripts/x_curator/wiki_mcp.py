@@ -2,6 +2,7 @@
 from contextlib import closing
 from functools import partial
 from pathlib import Path
+import json
 import sqlite3
 import sys
 
@@ -14,7 +15,8 @@ def respond(db, identity, message):
         if name == 'context':
             return wiki_context.call(db, identity, arguments)
         return wiki_draft.call(db, identity, name, arguments)
-    return mcp_stdio.respond(message, [*wiki_draft.tools(), wiki_context.tool()], call)
+    inputs = json.loads(db.execute('SELECT input FROM wiki_runs WHERE id=?', (identity,)).fetchone()['input'])
+    return mcp_stdio.respond(message, [*wiki_draft.tools(inputs), wiki_context.tool()], call)
 
 
 def serve(db, identity, stream, output):

@@ -6,14 +6,15 @@ from .deadlines import until
 from .receipts import digest
 from .wiki_contract import validate
 from .wiki_final import feedback
-from .wiki_references import canonical
+from .wiki_saved_draft import proposal as resolve, tool_schema
 
 
-def tools():
-    return [dict(name='validate', description='Validate a draft wiki mapping against this run\'s exact catalog and claims. Correct errors before final submission; no new allowance or approval.',
+def tools(inputs=None):
+    tool = dict(name='validate', description='Validate a draft wiki mapping against this run\'s exact catalog and claims. Correct errors before final submission; no new allowance or approval.',
                  annotations={'readOnlyHint': True, 'destructiveHint': False, 'openWorldHint': False},
                  inputSchema={'type': 'object', 'properties': {'proposal': {'type': 'object'}},
-                              'required': ['proposal'], 'additionalProperties': False})]
+                              'required': ['proposal'], 'additionalProperties': False})
+    return [tool_schema(tool, inputs or {})]
 
 
 def active(db, identity):
@@ -27,11 +28,11 @@ def active(db, identity):
 
 def call(db, identity, name, arguments):
     try:
-        if name != 'validate' or set(arguments) != {'proposal'}:
-            raise ValueError('only validate(proposal) is available')
+        if name != 'validate':
+            raise ValueError('only validate is available')
         row = active(db, identity)
         inputs = json.loads(row['input'])
-        proposal = canonical(arguments['proposal'], inputs)
+        proposal = resolve(arguments, inputs)
         with until(row['expires']):
             validate(proposal, inputs)
         text, error = feedback(inputs, proposal), False

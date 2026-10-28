@@ -68,6 +68,7 @@ def arguments():
     refresh.add_argument('--page', action='append', default=[], help='required existing note key')
     refresh.add_argument('--reason', required=True)
     grants = refresh.add_mutually_exclusive_group()
+    grants.add_argument('--saved-draft', type=Path, help='private pages-only untrusted draft; native validation and review still required')
     grants.add_argument('--grant-extra-attempt', action='store_true', help='grant an exhausted selection its fourth attempt without models')
     grants.add_argument('--grant-fifth-attempt', action='store_true', help='record separate explicit approval for an exhausted selection fifth attempt')
     grants.add_argument('--grant-sixth-attempt', action='store_true', help='record separate explicit approval for an exhausted selection sixth attempt')

@@ -3,7 +3,7 @@ import json
 
 from .model_trace import native
 from .receipts import digest
-from .wiki_references import canonical
+from .wiki_saved_draft import proposal as resolve
 
 
 def validations(log):
@@ -14,9 +14,9 @@ def validations(log):
 
 def selected(item, sha, inputs):
     try:
-        if item['result'].get('isError') or set(item['arguments']) != {'proposal'}:
+        if item['result'].get('isError'):
             return None
-        proposal = canonical(item['arguments']['proposal'], inputs)
+        proposal = resolve(item['arguments'], inputs)
         response = json.loads(item['result']['content'][0]['text'])
         if (digest(proposal), response.get('valid'), response.get('decision_sha')) == (sha, True, sha):
             return proposal
