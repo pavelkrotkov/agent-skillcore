@@ -34,7 +34,7 @@ def phases(db, root, client, identity, max_items, max_sources, deadline, result)
     result['review_outbox'] = flush(db, client.account)
     cycle_store.stage(db, identity, 'wiki')
     with span(db, 'cycle.wiki', scope='corpus', selected_sources=max_sources):
-        with until(deadline), lockfile(root, '.wiki.lock'):
+        with until(deadline), lockfile(root, '.wiki.lock', blocking=True):
             result['wiki'] = organize(db, root, max_sources)
     cycle_store.stage(db, identity, 'reconciled')
 

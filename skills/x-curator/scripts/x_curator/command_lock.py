@@ -14,7 +14,7 @@ def command_lock(args):
 
 
 @contextmanager
-def lockfile(root, name):
+def lockfile(root, name, *, blocking=False):
     with (root / name).open("a") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        fcntl.flock(lock, fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB))
         yield
