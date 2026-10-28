@@ -15,7 +15,7 @@ def run(db, root, client, max_items=2, max_sources=0, seconds=1800):
         try:
             with until(deadline):
                 phases(db, root, client, identity, max_items, max_sources, deadline, result)
-                result['report'] = accounting.report(db, root)
+                result['report'] = accounting.report(db, root, wait_for_wiki=True)
             cycle_store.finish(db, identity, 'finished', result)
         except Exception as exc:
             result.update(state='blocked', action=type(exc).__name__ + ': ' + str(exc)[:300])

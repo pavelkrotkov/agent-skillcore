@@ -9,13 +9,13 @@ from .wiki_current import current
 from .command_lock import lockfile
 
 
-def report(db, root):
+def report(db, root, *, wait_for_wiki=False):
     enqueue(db)
     receipts(db)
     wiki_store.initialize(db)
     cycle_store.initialize(db)
     invalidated = audit(db, root)
-    with lockfile(root, '.wiki.lock'):
+    with lockfile(root, '.wiki.lock', blocking=wait_for_wiki):
         wiki = wiki_status(db, root)
     sources = [dict(row) for row in db.execute('''SELECT j.account,j.id,j.state,j.attempts,j.max_attempts,
         j.next_at,j.lease_until,j.action,count(DISTINCT p.id) AS publications FROM jobs j
