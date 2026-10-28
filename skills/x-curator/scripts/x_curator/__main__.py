@@ -18,8 +18,12 @@ def main():
         return 2 if result['state'] == 'blocked' else 0
     db = open_store(args.state)
     try:
-        with command_lock(args), stage_timings.command(db, args.command):
-            result = dispatch(db, args)
+        with command_lock(args) as acquired, stage_timings.command(db, args.command):
+            if acquired:
+                result = dispatch(db, args)
+            else:
+                stage_timings.skip(db, "wiki.index_entry", "wiki lock busy")
+                result = {"state": "pending", "action": "wiki lock busy; indexing deferred to a later invocation"}
         print(json.dumps(result, indent=2))
         return 2 if isinstance(result, dict) and result["state"] == "blocked" else 0
     except Exception as exc:
