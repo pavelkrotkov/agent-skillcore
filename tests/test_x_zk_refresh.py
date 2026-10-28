@@ -49,6 +49,6 @@ class ZKRefreshTests(WikiCase):
                 patch('x_curator.wiki_input_load.Snapshot'):
             wiki_refresh.command(self.db, args)
         inputs = mapping.call_args.args[1]
-        self.assertEqual(inputs['retained_assignments'], 'catalog/v1')
+        self.assertEqual(inputs['retained_assignments'], 'catalog/v2')
         self.assertEqual(inputs['refresh'], wiki_refresh.fingerprint(self.inputs))
         self.assertEqual(set(inputs['sources']), {self.publication})
