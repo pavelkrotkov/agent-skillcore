@@ -87,6 +87,9 @@ def instructions(inputs, final=False):
     if final:
         from .wiki_final import INSTRUCTIONS
         text += INSTRUCTIONS
+    if final and 'saved_draft' in inputs:
+        from .wiki_saved_draft import INSTRUCTIONS
+        text += INSTRUCTIONS
     return text
 
 
