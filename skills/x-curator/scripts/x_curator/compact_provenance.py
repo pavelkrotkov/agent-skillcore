@@ -4,7 +4,10 @@ from .storage import sha256
 
 def publication(db, identity):
     from .compact_targets import token
-    current = token(db, identity)
+    return attempt(db, token(db, identity))
+
+
+def attempt(db, current):
     rows = db.execute('''SELECT id,role,model,input_sha,output_sha,log_sha,session,started,finished
         FROM executions WHERE token=? ORDER BY started,id''', (current,))
     executions = [dict(row) for row in rows]

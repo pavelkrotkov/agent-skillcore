@@ -6,7 +6,7 @@ from .proof_mode import MaintenanceRequired
 
 
 def authority(db, root, identity):
-    if identity[0] not in compact_seal.KINDS:
+    if identity[0] not in ('publication', 'mapping'):
         return None
     record = compact_seal.read(db, root, identity)
     if record is None:

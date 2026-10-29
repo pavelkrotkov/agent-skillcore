@@ -3,7 +3,7 @@ from . import compact_codec
 from .receipts import encoded
 
 TABLE = 'compact_approvals'
-KINDS = ('publication', 'mapping')
+KINDS = ('publication', 'mapping', 'diagnostic')
 
 
 def initialize(db):

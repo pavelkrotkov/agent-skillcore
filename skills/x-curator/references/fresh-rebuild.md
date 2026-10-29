@@ -147,6 +147,16 @@ image and digest facts as well; original `output_sha` values remain commitments
 to the discarded receipts. Session-file cleanup runs only after database commit
 and resumes on the next invocation if interrupted.
 Leased jobs, incomplete executions and failed mapping drafts are preserved.
+Superseded completed executions from a job with a retained publication approval can
+also lose their transcript bodies after original request/output/log hashes match.
+Their separate signed diagnostic records retain attempt state, failures, execution
+hashes and session identities; they never grant approval. Any attempt referenced by
+another publication, including prepared or withdrawn versions, is excluded. Damaged
+or incomplete receipts remain unchanged, as do all consumed attempts and allowances.
+Existing approval dependencies must verify before this controlled removal. Affected
+approvals retain their original approved values and receipt hashes, record the prior
+dependency digest and migration verifier, and atomically bind the compact fields.
+Preexisting dependency changes still block the entire transaction.
 Compaction defers while any unexpired worker lease exists, so its write transaction
 cannot prevent an active worker from recording a paid result. Retention retries
 failures every five minutes; coordinate the initial migration with an idle queue.

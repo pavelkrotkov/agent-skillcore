@@ -5,6 +5,7 @@ import time
 
 from . import compact_seal, compact_targets, compact_capture, compact_dependencies, compact_proofs
 from .proof_mode import audit
+from . import compact_diagnostics
 
 
 def preview(root):
@@ -15,9 +16,12 @@ def preview(root):
 
 
 def report(db, values, state):
-    return dict(state=state, publications=sum(p[0] == 'publication' for p in values),
+    result = dict(state=state, publications=sum(p[0] == 'publication' for p in values),
                 mappings=sum(p[0] == 'mapping' for p in values),
                 transcript_bytes=compact_targets.transcript_bytes(db, values))
+    if state == 'preview':
+        result['diagnostics'] = compact_diagnostics.report(db)
+    return result
 
 
 def run(db, root, apply=False):
@@ -32,6 +36,7 @@ def run(db, root, apply=False):
         summary = report(db, values, 'applied')
         stage(db, root, values)
         activate(db, root, values)
+        summary['diagnostics'] = compact_diagnostics.run(db, root)
     from .audit_reuse import _CACHE
     _CACHE.clear()
     from .compact_artifacts import run as remove_history_copies

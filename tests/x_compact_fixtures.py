@@ -16,3 +16,12 @@ class CompactCase(WikiCase):
     def verified(self):
         row = self.db.execute('SELECT * FROM publications WHERE id=?', (self.publication,)).fetchone()
         return verify_publication(self.db, self.root, row)
+
+
+    def old_attempt(self):
+        with self.db:
+            self.db.execute('''INSERT INTO attempts SELECT 'old-attempt',account,id,
+                0,1,2,'failed','synthetic superseded attempt' FROM attempts WHERE token=?''', (self.token,))
+            self.db.execute('''INSERT INTO executions SELECT id||'-old','old-attempt',role,
+                model,input,input_sha,started,finished,session,output,output_sha,log,log_sha
+                FROM executions WHERE token=?''', (self.token,))
