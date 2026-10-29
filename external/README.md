@@ -5,7 +5,7 @@ the exact 40-character commit used by Skillfleet. External repositories are
 cached below the configured cache directory and materialized into a disposable
 cache area; they are never copied into this repository.
 
-The three Matt Pocock entries share one cached clone. `i-have-adhd` is selected
+The four Matt Pocock entries share one cached clone. `i-have-adhd` is selected
 from its portable `skills/i-have-adhd` directory. Its upstream repository also
 contains agent-specific plugin files, but those files are not exposed by this
 manifest entry.

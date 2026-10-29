@@ -14,7 +14,7 @@ fetches a private companion.
 Nine first-party skills: `amazon-aliexpress-research`, `email-cleanup`,
 `github-repo-maintenance`, `hermes-cleanup`, `skillfleet-example`,
 `travel-orchestrator`, `volleyball-video-analysis`, `x-curator`, and
-`zoom-call-archive`. Fifteen external skill entries are references to reviewed
+`zoom-call-archive`. Sixteen external skill entries are references to reviewed
 public repositories, pinned to exact commits in `external/skills.lock`.
 External source is not vendored.
 
