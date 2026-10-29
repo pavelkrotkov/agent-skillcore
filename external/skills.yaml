@@ -3,6 +3,16 @@ version: 1
 # External repositories are references, not vendored source.  The lockfile is
 # authoritative for what reaches the generated runtime.
 external:
+  - name: setup-matt-pocock-skills
+    repo: https://github.com/mattpocock/skills.git
+    path: skills/engineering/setup-matt-pocock-skills
+    track:
+      branch: main
+    deployment:
+      codex: shared
+      claude: shared
+      hermes: shared
+
   - name: matt-code-review
     repo: https://github.com/mattpocock/skills.git
     path: skills/engineering/code-review
