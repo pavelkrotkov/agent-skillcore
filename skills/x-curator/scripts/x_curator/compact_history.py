@@ -1,27 +1,10 @@
 """Atomically replace verified model history with signed, dependency-bound approvals."""
-from contextlib import closing
-import sqlite3
 import time
 
 from . import compact_seal, compact_targets, compact_capture, compact_dependencies, compact_proofs
 from .proof_mode import audit
 from . import compact_diagnostics
-
-
-def preview(root):
-    with closing(sqlite3.connect((root / 'curator.sqlite3').as_uri() + '?mode=ro', uri=True)) as db:
-        db.row_factory = sqlite3.Row
-        db.execute('BEGIN')
-        return report(db, compact_targets.targets(db), 'preview')
-
-
-def report(db, values, state):
-    result = dict(state=state, publications=sum(p[0] == 'publication' for p in values),
-                mappings=sum(p[0] == 'mapping' for p in values),
-                transcript_bytes=compact_targets.transcript_bytes(db, values))
-    if state == 'preview':
-        result['diagnostics'] = compact_diagnostics.report(db)
-    return result
+from .compact_preview import preview, report
 
 
 def run(db, root, apply=False):

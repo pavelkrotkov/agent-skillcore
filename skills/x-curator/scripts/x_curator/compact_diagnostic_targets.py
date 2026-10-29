@@ -1,7 +1,10 @@
 """Finished superseded receipts cannot approve work or recover a different publication."""
 import time
+import json
 
 from . import compact_seal
+from .receipts import digest
+from .storage import sha256
 
 
 def candidates(db):
@@ -28,3 +31,19 @@ def require_approval(db, root, row):
 def rows(db, token):
     return db.execute('''SELECT * FROM executions WHERE token=? AND finished IS NOT NULL
         ORDER BY started,id''', (token,)).fetchall()
+
+
+def intact(row):
+    try:
+        return (sha256(row['log']) == row['log_sha'] and
+                digest(json.loads(row['input'])) == row['input_sha'] and
+                digest(json.loads(row['output'])) == row['output_sha'])
+    except (ValueError, TypeError):
+        return False
+
+
+def eligible(db):
+    for attempt in candidates(db):
+        receipts = rows(db, attempt['token'])
+        if all(intact(row) for row in receipts):
+            yield attempt, receipts
