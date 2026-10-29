@@ -22,7 +22,9 @@ def context(root, identity):
 
 
 def write(db, root, identity, record, active):
-    body, signature = compact_codec.pack(root, context(root, identity), record)
+    prior = db.execute('SELECT kind,identity,body,signature FROM compact_approvals LIMIT 1').fetchone()
+    authority = None if prior is None else (context(root, tuple(prior[:2])), prior[2], prior[3])
+    body, signature = compact_codec.pack(root, context(root, identity), record, authority=authority)
     db.execute('''INSERT INTO compact_approvals VALUES (?,?,?,?,?)
         ON CONFLICT(kind,identity) DO UPDATE SET body=excluded.body,
         signature=excluded.signature,active=excluded.active''', (*identity, body, signature, active))

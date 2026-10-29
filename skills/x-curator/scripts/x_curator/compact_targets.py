@@ -1,5 +1,6 @@
 """Only finished publication tokens and accepted wiki mappings may lose transcripts."""
 from .compact_seal import present
+from . import compact_output
 
 
 def targets(db):
@@ -23,6 +24,7 @@ def token(db, identity):
 def transcript_bytes(db, values):
     tokens = {token(db, p[1]) for p in values if p[0] == 'publication'}
     total = sum(db.execute('SELECT coalesce(sum(length(log)),0) FROM executions WHERE token=? AND finished IS NOT NULL', (t,)).fetchone()[0] for t in tokens)
+    total += sum(compact_output.savings(db, t) for t in tokens)
     for kind, identity in values:
         if kind == 'mapping':
             total += db.execute('SELECT coalesce(length(proposal),0)+coalesce(length(review),0) FROM wiki_runs WHERE id=?', (identity,)).fetchone()[0]
@@ -33,6 +35,7 @@ def purge(db, values):
     tokens = {token(db, p[1]) for p in values if p[0] == 'publication'}
     for t in tokens:
         db.execute('UPDATE executions SET log=NULL WHERE token=? AND finished IS NOT NULL', (t,))
+        compact_output.purge(db, t)
     for kind, identity in values:
         if kind == 'mapping':
             db.execute('UPDATE wiki_runs SET proposal=NULL,review=NULL WHERE id=?', (identity,))

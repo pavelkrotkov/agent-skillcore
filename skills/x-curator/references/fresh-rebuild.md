@@ -142,6 +142,10 @@ With `--apply`, the controller replays the original verification for completed
 publications and accepted wiki mappings before replacing their transcript bodies.
 The entire database change is transactional: a failed original proof or failed
 post-migration readback rolls back both the new records and transcript removal.
+Evidence-phase `output.input_proof` payloads are replaced by compact session,
+image and digest facts as well; original `output_sha` values remain commitments
+to the discarded receipts. Session-file cleanup runs only after database commit
+and resumes on the next invocation if interrupted.
 Leased jobs, incomplete executions and failed mapping drafts are preserved.
 
 Canonical `compact_approvals` rows contain a compressed approved result, original

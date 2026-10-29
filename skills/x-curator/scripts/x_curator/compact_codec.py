@@ -7,19 +7,30 @@ from .audit_key import secret
 from .proof_mode import MaintenanceRequired
 
 
-def pack(root, context, record):
+def pack(root, context, record, *, authority=None):
     body = zlib.compress(dumps(record), level=9)
-    return body, hmac.digest(secret(root), context + body, 'sha256')
+    key = controller_key(root, authority is None)
+    if authority is not None:
+        require_signature(key, *authority)
+    return body, hmac.digest(key, context + body, 'sha256')
 
 
 def unpack(root, context, body, signature):
-    try:
-        expected = hmac.digest(secret(root, create_missing=False), context + body, 'sha256')
-    except (OSError, ValueError) as exc:
-        raise MaintenanceRequired('Compact approval controller key unavailable; restore the original key') from exc
+    require_signature(controller_key(root, False), context, body, signature)
+    return decode(body)
+
+
+def require_signature(key, context, body, signature):
+    expected = hmac.digest(key, context + body, 'sha256')
     if not hmac.compare_digest(expected, signature):
         raise MaintenanceRequired('Compact approval signature changed; restore the proof and controller key')
-    return decode(body)
+
+
+def controller_key(root, create_missing):
+    try:
+        return secret(root, create_missing=create_missing)
+    except (OSError, ValueError) as exc:
+        raise MaintenanceRequired('Compact approval controller key unavailable; restore the original key') from exc
 
 
 def decode(body):

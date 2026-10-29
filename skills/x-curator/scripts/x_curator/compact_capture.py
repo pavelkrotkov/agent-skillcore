@@ -20,7 +20,9 @@ def approved_source(reads, db, root, identity):
     from .evidence import current_bundle
     from .verdicts import model_approval
     from .compact_validation import publication as verify_current
-    row = reads.execute('SELECT * FROM publications WHERE id=?', (identity,)).fetchone()
+    # Lifecycle withdrawal/reinstatement does not revoke the historical model fact.
+    row = reads.execute('''SELECT id,account,source,proposal,review,path,body,sha,created
+        FROM publications WHERE id=?''', (identity,)).fetchone()
     token = reads.execute('SELECT token FROM executions WHERE id=?', (row['proposal'],)).fetchone()[0]
     job = db.execute('SELECT * FROM jobs WHERE account=? AND id=?', (row['account'], row['source'])).fetchone()
     evidence = current_bundle(db, job, token)
