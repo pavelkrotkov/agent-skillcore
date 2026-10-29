@@ -147,6 +147,9 @@ image and digest facts as well; original `output_sha` values remain commitments
 to the discarded receipts. Session-file cleanup runs only after database commit
 and resumes on the next invocation if interrupted.
 Leased jobs, incomplete executions and failed mapping drafts are preserved.
+Compaction defers while any unexpired worker lease exists, so its write transaction
+cannot prevent an active worker from recording a paid result. Retention retries
+failures every five minutes; coordinate the initial migration with an idle queue.
 
 Canonical `compact_approvals` rows contain a compressed approved result, original
 execution/session/request/output/transcript hashes, verifier provenance, and hashes

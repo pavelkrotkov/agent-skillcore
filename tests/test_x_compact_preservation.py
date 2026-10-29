@@ -21,7 +21,18 @@ class CompactpreservationTests(CompactCase):
         with self.assertRaises((ValueError, UnicodeError)):
             compact_history.run(self.db, self.root, apply=True)
         self.assertEqual(before, [tuple(r) for r in self.db.execute('SELECT id,log FROM executions ORDER BY id')])
-        self.assertEqual(self.db.execute('SELECT count(*) FROM compact_approvals').fetchone()[0], 0)
+        self.assertFalse(compact_seal.present(self.db))
+
+
+    def test_active_workers_defer_compaction_without_changing_history(self):
+        import time
+        with self.db:
+            self.db.execute("UPDATE jobs SET state='leased',lease_until=?", (time.time() + 600,))
+        before = [tuple(r) for r in self.db.execute('SELECT id,log FROM executions ORDER BY id')]
+        with self.assertRaises(BlockingIOError):
+            compact_history.run(self.db, self.root, apply=True)
+        self.assertFalse(compact_seal.present(self.db))
+        self.assertEqual(before, [tuple(r) for r in self.db.execute('SELECT id,log FROM executions ORDER BY id')])
 
 
     def test_failed_mappings_and_running_execution_history_remain_available(self):

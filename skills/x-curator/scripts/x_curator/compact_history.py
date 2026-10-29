@@ -1,6 +1,7 @@
 """Atomically replace verified model history with signed, dependency-bound approvals."""
 from contextlib import closing
 import sqlite3
+import time
 
 from . import compact_seal, compact_targets, compact_capture, compact_dependencies, compact_proofs
 from .proof_mode import audit
@@ -22,10 +23,11 @@ def report(db, values, state):
 def run(db, root, apply=False):
     if not apply:
         return report(db, compact_targets.targets(db), 'preview')
-    compact_seal.initialize(db)
-    db.commit()
     with db, audit():
         db.execute('BEGIN IMMEDIATE')
+        if db.execute("SELECT 1 FROM jobs WHERE state='leased' AND lease_until>? LIMIT 1", (time.time(),)).fetchone():
+            raise BlockingIOError('Model workers are active; retry compaction when leases finish')
+        compact_seal.initialize(db)
         values = compact_targets.targets(db)
         summary = report(db, values, 'applied')
         stage(db, root, values)
