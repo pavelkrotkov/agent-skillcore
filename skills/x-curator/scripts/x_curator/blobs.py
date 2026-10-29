@@ -7,7 +7,7 @@ from .read_set import read_file
 
 
 def state_root(db):
-    return Path(db.execute("PRAGMA database_list").fetchone()[2]).parent
+    return Path(db.execute("SELECT file FROM pragma_database_list WHERE name='main'").fetchone()[0]).parent
 
 
 def put(db, body):
