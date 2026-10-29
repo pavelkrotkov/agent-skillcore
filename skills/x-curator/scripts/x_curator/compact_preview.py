@@ -19,5 +19,3 @@ def report(db, values, state):
     if state == 'preview':
         result['diagnostics'] = compact_diagnostics.report(db)
     return result
-
-
