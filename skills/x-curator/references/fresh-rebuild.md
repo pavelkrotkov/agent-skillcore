@@ -133,7 +133,44 @@ For terminal runs older than seven days, staging image copies expire only after 
 byte comparison with their original blob. Event and native session files expire only
 when byte-identical to a transcript already retained in the canonical database receipt.
 Active runs, unique/unrecorded bytes, unknown files and external CODEX_HOME directories
-are excluded. Canonical transcripts remain unchanged and uncompressed in this release.
+are excluded until their completed approvals have been migrated to compact proof records.
+
+#### Compact model-history proofs
+
+`python -m x_curator --state PRIVATE_STATE compact-history` is a read-only preview.
+With `--apply`, the controller replays the original verification for completed
+publications and accepted wiki mappings before replacing their transcript bodies.
+The entire database change is transactional: a failed original proof or failed
+post-migration readback rolls back both the new records and transcript removal.
+Leased jobs, incomplete executions and failed mapping drafts are preserved.
+
+Canonical `compact_approvals` rows contain a compressed approved result, original
+execution/session/request/output/transcript hashes, verifier provenance, and hashes
+of every model-approval dependency. A domain-separated HMAC binds each record to
+the controller's state root and proof identity. The private `audit-memos/key` is now
+required canonical state when compact approvals exist; back it up with the database
+and never delete or regenerate it as cache cleanup.
+
+These records attest that the original controller verified model input, output,
+independence and evidence/tool allowances under the recorded verifier policy. They
+do not pretend that discarded native transcripts remain independently replayable.
+Verification continues to check original source/media bytes, current acquisitions,
+publication readback and wiki contracts. New acquisitions can qualify unchanged
+sources without replaying model history. Approval metadata or evidence mutations
+still fail closed. Missing or corrupt proof records/keys require restoration and
+never silently grant a retry or invalidate already published work.
+
+Optional memo loss, code-cache changes and process restarts do not erase compact
+approval authority. `wiki --audit --max-sources 0` verifies retained attestations and
+current source bytes for compacted history. After explicit activation, daily
+retention compacts newly completed approvals using the same checks. Model-session
+files whose exact session IDs belong to signed completed
+approvals, and staged event files matching their signed content hashes, expire after
+a five-minute flush grace period. External CODEX_HOME trees and unrelated sessions
+are excluded. This also runs on repeated compaction when no new approvals exist.
+SQLite reuses freed pages; perform coordinated `VACUUM` after migration to reclaim disk blocks.
+Keep a matching pre-migration database until verification and readback pass; old
+runtimes without compact-proof support require that matching old database.
 
 New supervisor rows store compact counts, generation, action and dependency diagnostics
 rather than repeated source inventories and artifact manifests. Retention compacts the

@@ -24,6 +24,8 @@ def arguments():
     repairs.add_argument('--apply', metavar='PREVIEW_DIGEST')
     retention = commands.add_parser('retain', help='preview derived-data retention; originals and canonical proofs are preserved')
     retention.add_argument('--apply', action='store_true', help='delete only eligible expired copies')
+    compact = commands.add_parser('compact-history', help='replace verified transcripts with permanent signed approval records')
+    compact.add_argument('--apply', action='store_true', help='verify, seal and atomically remove eligible transcript bodies')
     commands.add_parser("status")
     commands.add_parser("queue")
     commands.add_parser("report")

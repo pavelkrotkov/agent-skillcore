@@ -37,6 +37,7 @@ def dispatch(db, args):
     from . import accounting, batch_report, daily_store, deep_process, index_pending, policy_metrics, recovery, review_cli, wiki_index_result, quick_recovery, video_package, wiki_refresh, retention
     from .article_refresh_store import enable as enable_article_currentness
     handlers = {
+        'compact-history': lambda: compact_command(db, args),
         'configure-article-currentness': lambda: enable_article_currentness(db, args.publication, args.reason),
         'retain': lambda: retention.run(db, args.state, apply=args.apply),
         'prepare-video': lambda: video_package.ingest(db, args.account, args.source, args.package, args.reason),
@@ -56,6 +57,16 @@ def dispatch(db, args):
         'index-pending': lambda: index_pending.run(db, args.state),
     }
     return handlers.get(args.command, lambda: live_dispatch(db, args))()
+
+
+def compact_command(db, args):
+    from contextlib import ExitStack
+    from .command_lock import lockfile
+    from .compact_history import run
+    with ExitStack() as locks:
+        for name in ('.concept-migration.lock', '.supervisor.lock', '.wiki.lock', '.publication-recovery.lock'):
+            locks.enter_context(lockfile(args.state, name))
+        return run(db, args.state, apply=args.apply)
 
 
 

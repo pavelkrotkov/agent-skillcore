@@ -10,12 +10,16 @@ def run(db, root, apply=False):
         # Validate every namespace before deleting anything from any category.
         for name in ('wiki/builds', 'audit-memos', 'runs', 'policy-transitions'):
             retention_wiki.target(root, name)
-        return dict(state='applied' if apply else 'preview',
+        result = dict(state='applied' if apply else 'preview',
                     wiki=retention_wiki.run(db, root, apply),
                     memos=retention_memos.run(db, root, apply),
                     staging=retention_staging.run(db, root, apply),
                     backups=retention_backups.run(root, apply),
                     history=retention_history.run(db, apply))
+        from . import compact_history, compact_seal
+        if compact_seal.present(db):
+            result['proofs'] = compact_history.run(db, root, apply)
+        return result
 
 
 def preview(root):
