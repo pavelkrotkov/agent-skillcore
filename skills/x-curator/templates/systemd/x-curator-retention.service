@@ -1,9 +1,12 @@
 [Unit]
 Description=Expire redundant x-curator builds, caches and staging copies
 After=network-online.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=oneshot
+Restart=on-failure
+RestartSec=5m
 UMask=0077
 Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
 EnvironmentFile=%h/.config/x-curator-fresh/runtime.env

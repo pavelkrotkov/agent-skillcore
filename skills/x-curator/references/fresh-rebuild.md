@@ -133,7 +133,61 @@ For terminal runs older than seven days, staging image copies expire only after 
 byte comparison with their original blob. Event and native session files expire only
 when byte-identical to a transcript already retained in the canonical database receipt.
 Active runs, unique/unrecorded bytes, unknown files and external CODEX_HOME directories
-are excluded. Canonical transcripts remain unchanged and uncompressed in this release.
+are excluded until their completed approvals have been migrated to compact proof records.
+
+#### Compact model-history proofs
+
+`python -m x_curator --state PRIVATE_STATE compact-history` is a read-only preview.
+With `--apply`, the controller replays the original verification for completed
+publications and accepted wiki mappings before replacing their transcript bodies.
+The entire database change is transactional: a failed original proof or failed
+post-migration readback rolls back both the new records and transcript removal.
+Evidence-phase `output.input_proof` payloads are replaced by compact session,
+image and digest facts as well; original `output_sha` values remain commitments
+to the discarded receipts. Session-file cleanup runs only after database commit
+and resumes on the next invocation if interrupted.
+Leased jobs, incomplete executions and failed mapping drafts are preserved.
+Superseded completed executions from a job with a retained publication approval can
+also lose their transcript bodies after original request/output/log hashes match.
+Their separate signed diagnostic records retain attempt state, failures, execution
+hashes and session identities; they never grant approval. Any attempt referenced by
+another publication, including prepared or withdrawn versions, is excluded. Damaged
+or incomplete receipts remain unchanged, as do all consumed attempts and allowances.
+Existing approval dependencies must verify before this controlled removal. Affected
+approvals retain their original approved values and receipt hashes, record the prior
+dependency digest and migration verifier, and atomically bind the compact fields.
+Preexisting dependency changes still block the entire transaction.
+Compaction defers while any unexpired worker lease exists, so its write transaction
+cannot prevent an active worker from recording a paid result. Retention retries
+failures every five minutes; coordinate the initial migration with an idle queue.
+
+Canonical `compact_approvals` rows contain a compressed approved result, original
+execution/session/request/output/transcript hashes, verifier provenance, and hashes
+of every model-approval dependency. A domain-separated HMAC binds each record to
+the controller's state root and proof identity. The private `audit-memos/key` is now
+required canonical state when compact approvals exist; back it up with the database
+and never delete or regenerate it as cache cleanup.
+
+These records attest that the original controller verified model input, output,
+independence and evidence/tool allowances under the recorded verifier policy. They
+do not pretend that discarded native transcripts remain independently replayable.
+Verification continues to check original source/media bytes, current acquisitions,
+publication readback and wiki contracts. New acquisitions can qualify unchanged
+sources without replaying model history. Approval metadata or evidence mutations
+still fail closed. Missing or corrupt proof records/keys require restoration and
+never silently grant a retry or invalidate already published work.
+
+Optional memo loss, code-cache changes and process restarts do not erase compact
+approval authority. `wiki --audit --max-sources 0` verifies retained attestations and
+current source bytes for compacted history. After explicit activation, daily
+retention compacts newly completed approvals using the same checks. Model-session
+files whose exact session IDs belong to signed completed
+approvals, and staged event files matching their signed content hashes, expire after
+a five-minute flush grace period. External CODEX_HOME trees and unrelated sessions
+are excluded. This also runs on repeated compaction when no new approvals exist.
+SQLite reuses freed pages; perform coordinated `VACUUM` after migration to reclaim disk blocks.
+Keep a matching pre-migration database until verification and readback pass; old
+runtimes without compact-proof support require that matching old database.
 
 New supervisor rows store compact counts, generation, action and dependency diagnostics
 rather than repeated source inventories and artifact manifests. Retention compacts the

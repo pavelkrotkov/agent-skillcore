@@ -2,10 +2,13 @@
 
 
 def handles(args):
-    return args.command in ('diagnose-publication', 'migrate-quick') or (args.command == 'retain' and not args.apply)
+    return args.command in ('diagnose-publication', 'migrate-quick') or (args.command in ('retain', 'compact-history') and not args.apply)
 
 
 def dispatch(args):
+    if args.command == 'compact-history':
+        from .compact_history import preview
+        return preview(args.state)
     if args.command == 'retain':
         from .retention import preview
         return preview(args.state)

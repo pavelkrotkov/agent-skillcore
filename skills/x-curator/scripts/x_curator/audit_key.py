@@ -4,10 +4,11 @@ import stat
 from .publication_files import private_target
 
 
-def secret(root):
+def secret(root, *, create_missing=True):
     path = private_target(root, 'audit-memos/key')
-    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    create(path)
+    if create_missing:
+        path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        create(path)
     with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW), 'rb') as stream:
         info = os.fstat(stream.fileno())
         if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:

@@ -12,6 +12,13 @@ def approved(db, token, proposal_id, review_id):
 
 
 def validate_approval(db, token, proposal_id, review_id, evidence):
+    packet, evidence = model_approval(db, token, proposal_id, review_id, evidence)
+    validate_revision(db, token, evidence['captures'], selected_source(db, db.execute(
+        'SELECT * FROM jobs WHERE account=? AND id=?', (evidence['account'], evidence['source'])).fetchone()), packet)
+    return packet, evidence
+
+
+def model_approval(db, token, proposal_id, review_id, evidence):
     if (row := db.execute('SELECT role FROM executions WHERE id=?', (proposal_id,)).fetchone()) and row['role'] == 'factcheck':
         from .quick_proof import verify
         packet, evidence = verify(db, token, proposal_id, review_id, evidence)
@@ -24,8 +31,6 @@ def validate_approval(db, token, proposal_id, review_id, evidence):
             packet, verdict = reviewed(db, token, proposal_id, review_id, evidence)
             if verdict != {"verdict": "approve", "proposal_sha": digest(packet), "bundle_sha": digest(evidence), "findings": []}:
                 raise ValueError("independent review has not approved the exact proposal")
-    validate_revision(db, token, evidence['captures'], selected_source(db, db.execute(
-        'SELECT * FROM jobs WHERE account=? AND id=?', (evidence['account'], evidence['source'])).fetchone()), packet)
     return packet, evidence
 
 

@@ -30,6 +30,10 @@ def snapshot(db):
 def cached(db, root, identity, compute, required=False):
     key = connection(db), root, identity
     with snapshot(db):
+        from .compact_proofs import authority, restored
+        if authority(db, root, identity) is not None:
+            compute = lambda reads: restored(reads, root, identity)
+            required = False
         previous = previous_proof(key,root,identity,required)
         if previous:
             value, queries, files, stamp, metadata = previous
