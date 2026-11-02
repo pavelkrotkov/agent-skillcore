@@ -3,60 +3,60 @@ external:
   matt-code-review:
     repo: https://github.com/mattpocock/skills.git
     path: skills/engineering/code-review
-    commit: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+    commit: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
   matt-tdd:
     repo: https://github.com/mattpocock/skills.git
     path: skills/engineering/tdd
-    commit: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+    commit: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
   matt-improve-codebase-architecture:
     repo: https://github.com/mattpocock/skills.git
     path: skills/engineering/improve-codebase-architecture
-    commit: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+    commit: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
   i-have-adhd:
     repo: https://github.com/ayghri/i-have-adhd.git
     path: skills/i-have-adhd
-    commit: 839872f9d1cd634fed642b4589ce7226199cc15f
+    commit: 1ecea1993b7fce257ffbd686c070948b5e07eda6
   ponytail:
     repo: https://github.com/DietrichGebert/ponytail.git
     path: skills/ponytail
-    commit: c982cd411abb53323c4baa1baa3c2f020b8d0b08
+    commit: 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846
   gh-stack:
     repo: https://github.com/github/gh-stack.git
     path: skills/gh-stack
-    commit: d4ab7ab47e5b3e3708a27c8c42abcdf4bc321419
+    commit: 2a49e6751238633db504655d8a8eba3e433e827d
   github-project-swarm:
     repo: https://github.com/pavelkrotkov/gh-swarm.git
     path: skills/github-project-swarm
-    commit: 2ab90a78a1a076ee4517cc9a7f06c99cd08739c7
+    commit: 0adbbf4483c95012134b441b84eee89fd597a01b
   github-project-reviewer:
     repo: https://github.com/pavelkrotkov/gh-swarm.git
     path: skills/github-project-reviewer
-    commit: 2ab90a78a1a076ee4517cc9a7f06c99cd08739c7
+    commit: 0adbbf4483c95012134b441b84eee89fd597a01b
   github-project-adjudicator:
     repo: https://github.com/pavelkrotkov/gh-swarm.git
     path: skills/github-project-adjudicator
-    commit: 2ab90a78a1a076ee4517cc9a7f06c99cd08739c7
+    commit: 0adbbf4483c95012134b441b84eee89fd597a01b
   build-iterated-agentic-loop:
     repo: https://github.com/humanlayer/skills.git
     path: plugins/build-iterated-agentic-loop/skills/build-iterated-agentic-loop
-    commit: ca7c8088db69e315a8b2deea43820270457f8f3c
+    commit: 4d69d20f6e9b57b4fcf0d501ccfb1be961f0f329
   design-control-loop:
     repo: https://github.com/humanlayer/skills.git
     path: plugins/design-control-loop/skills/design-control-loop
-    commit: ca7c8088db69e315a8b2deea43820270457f8f3c
+    commit: 4d69d20f6e9b57b4fcf0d501ccfb1be961f0f329
   improve-claude-md:
     repo: https://github.com/humanlayer/skills.git
     path: plugins/improve-claude-md/skills/improve-claude-md
-    commit: ca7c8088db69e315a8b2deea43820270457f8f3c
+    commit: 4d69d20f6e9b57b4fcf0d501ccfb1be961f0f329
   narrow-react-prop-types:
     repo: https://github.com/humanlayer/skills.git
     path: plugins/narrow-react-prop-types/skills/narrow-react-prop-types
-    commit: ca7c8088db69e315a8b2deea43820270457f8f3c
+    commit: 4d69d20f6e9b57b4fcf0d501ccfb1be961f0f329
   show-me:
     repo: https://github.com/humanlayer/skills.git
     path: plugins/show-me/skills/show-me
-    commit: ca7c8088db69e315a8b2deea43820270457f8f3c
+    commit: 4d69d20f6e9b57b4fcf0d501ccfb1be961f0f329
   visual-pr:
     repo: https://github.com/humanlayer/skills.git
     path: plugins/visual-pr/skills/visual-pr
-    commit: ca7c8088db69e315a8b2deea43820270457f8f3c
+    commit: 4d69d20f6e9b57b4fcf0d501ccfb1be961f0f329
