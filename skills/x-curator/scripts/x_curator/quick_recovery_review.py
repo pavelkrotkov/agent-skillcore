@@ -9,10 +9,12 @@ from .receipts import digest
 def prepare(db, batch, chat):
     with db:
         db.execute('BEGIN IMMEDIATE')
-        value = batch_report.result(db, batch)
         recovered = db.execute('''SELECT r.replacement FROM quick_recoveries r JOIN curation_members m
             ON m.account=r.account AND m.source=r.source WHERE m.batch=? AND r.review_batch IS NULL''', (batch,)).fetchall()
-        if value['state'] != 'closed' or not recovered:
+        if not recovered:
+            return None
+        value = batch_report.result(db, batch)
+        if value['state'] != 'closed':
             return None
         return save(db, value, chat, {r['replacement'] for r in recovered})
 

@@ -22,7 +22,11 @@ bytes, hashes, selected entries and pagination checkpoints commit together. Repe
 collection resumes its existing cumulative request allowance; `--new-run` starts an
 explicit new pass. `timeline_end` means the exposed timeline ended, not complete history.
 The existing supervisor polls fresh heads and reconciles the deterministic verified-source
-index by default; semantic organization is explicit and optional.
+index independently. The reviewed recurring service explicitly selects at most five
+sources for semantic organization per cycle (`--max-sources 5`); direct supervisor
+calls still default to zero. Existing organization attempt limits and independent
+review apply, and no failure resets consumed allowances. `index-pending` and
+publication indexing continue to use zero organizer calls.
 
 Default `work` runs the [quick policy](bounded-fact-check.md), using a 240-second
 crash-recovery lease around its 120-second text or 180-second verified-video allowance, then rebuilds the deterministic
@@ -31,6 +35,27 @@ transactionally. PDF/video/ASR dependencies are optional for separately approved
 reading; do not deploy or start them for ordinary tweets. The qualified Linux Python
 runtime and Codex CLI use the existing ChatGPT subscription, required model and
 high reasoning. Provider failure stays visible without substituting a model.
+
+The recurring worker retries infrastructure exceptions, exhausted executions,
+interrupted leases and inconclusive checks with retained retrieval errors within
+the existing total attempt ceiling (normally three). Durable backoff waits 60
+seconds after the first failed attempt and 120 after the second. A child check
+retains the parent receipt, original deadline, searches and consumed attempts;
+it never refills HTTP allowance or creates deep-research permission. Genuine
+factual uncertainty, human deferrals and exhausted technical work remain visible.
+The optional `--unspent-only` flag is an explicit legacy hold mode, not the
+recurring service's retry policy.
+
+Previously held technical failures require a preview and exact apply:
+
+```sh
+python -m x_curator --state PRIVATE_STATE recover-technical --account ACCOUNT --source SOURCE
+python -m x_curator --state PRIVATE_STATE recover-technical --account ACCOUNT --source SOURCE --apply PREVIEW_DIGEST
+```
+
+Repeat `--source SOURCE` to select a historical cohort and repeat the same selection
+when applying its digest. This recovery does not increase attempt ceilings or reset
+consumed work.
 
 ### Explicitly approved video preparation
 
@@ -78,6 +103,15 @@ Backlog cohorts contain at most fifty sources. Configure a private originating-c
 route and daily timezone once; midnight freezes each new-arrival cohort. Pending
 review does not block source dispatch or wiki organization. Research starts only
 through a consumed, exact [human approval](chat-approvals.md).
+
+`status` returns collection coverage plus notification and graph summaries.
+It reports prepared, observed, unobserved and recorded-failure delivery counts.
+No sender runs inside the curator; an external originating-chat consumer must be
+scheduled and observed separately. Unknown send status is not reported as a send
+failure. The graph summary counts the recorded active generation's indexed,
+mapped and unmapped sources, pending indexing and the latest accepted organization.
+Its source-map bytes must match the build receipt, but it does not replay source
+proofs or claim a fresh full audit.
 
 `report` audits publication evidence and the active wiki. `policy-report` records
 measured dispositions, calls, queries, retries and timing; inspect incomplete receipts

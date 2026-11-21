@@ -4,7 +4,7 @@ import sys
 from .cli import arguments
 from .command_lock import command_lock
 from .queue import enqueue
-from .storage import coverage, open_store
+from .storage import open_store
 from .live_dispatch import live_dispatch
 from .standalone import handles, dispatch as standalone
 from . import stage_timings
@@ -34,7 +34,7 @@ def main():
 
 
 def dispatch(db, args):
-    from . import accounting, batch_report, daily_store, deep_process, index_pending, policy_metrics, recovery, review_cli, wiki_index_result, quick_recovery, video_package, wiki_refresh, retention
+    from . import accounting, batch_report, daily_store, deep_process, index_pending, policy_metrics, recovery, review_cli, wiki_index_result, quick_recovery, quick_retry_recovery, video_package, wiki_refresh, retention, operational_status
     from .article_refresh_store import enable as enable_article_currentness
     handlers = {
         'compact-history': lambda: compact_command(db, args),
@@ -42,6 +42,7 @@ def dispatch(db, args):
         'retain': lambda: retention.run(db, args.state, apply=args.apply),
         'prepare-video': lambda: video_package.ingest(db, args.account, args.source, args.package, args.reason),
         'recover-quick': lambda: quick_recovery.run(db, args.apply),
+        'recover-technical': lambda: quick_retry_recovery.run(db, args.account, args.apply, args.source),
         'complete-publication': lambda: recovery.command(db, args),
         'recover-wiki': lambda: recovery.command(db, args),
         'configure-daily': lambda: daily_store.configure(db, args.account, args.chat, args.timezone),
@@ -49,9 +50,9 @@ def dispatch(db, args):
         'review': lambda: review_cli.command(db, args),
         'batches': lambda: batch_report.report(db, args.batch),
         'report': lambda: accounting.report(db, args.state),
-        'policy-report': lambda: stage_timings.report(db, args.run_id) if args.run_id else policy_metrics.report(db),
+        'policy-report': lambda: stage_timings.report(db, args.run_id) if args.run_id else policy_metrics.report(db, args.state),
         'queue': lambda: enqueue(db),
-        'status': lambda: [coverage(db, row[0]) for row in db.execute('SELECT id FROM collections ORDER BY started')],
+        'status': lambda: operational_status.report(db, args.state),
         'wiki': lambda: wiki_index_result.command(db,args),
         'zk-refresh': lambda: wiki_refresh.command(db,args),
         'index-pending': lambda: index_pending.run(db, args.state),

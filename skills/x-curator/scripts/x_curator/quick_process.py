@@ -2,7 +2,7 @@
 from .stage_timings import timed
 import time
 
-from . import codex_profile, executions, execution_failure, native_search, quick_context, quick_linked, quick_phases, quick_proof, quick_store
+from . import codex_profile, executions, execution_failure, native_search, quick_context, quick_linked, quick_phases, quick_proof, quick_store, quick_retry, quick_failures
 from .codex_runner import runner
 from .deadlines import until
 from .evidence import bundle
@@ -22,7 +22,12 @@ def research(db, state, client, token):
     except Exception as exc:
         execution_failure.record(db, state, token, exc)
         reason = 'Quick check inconclusive: ' + type(exc).__name__ + ': ' + str(exc)[:400]
-        quick_store.finish(db, token, 'inconclusive', reason)
+        # Operational failures are separate from completed evidence judgments.
+        # Retrying appends a child allowance; it cannot renew this check's deadline.
+        if quick_retry.technical(exc) or quick_failures.retrieval(db, token):
+            quick_retry.fail(db, token, reason)
+        else:
+            quick_store.finish(db, token, 'inconclusive', reason)
         return None
 
 
@@ -43,5 +48,9 @@ def run(db, state, client, token, check):
     quick_proof.decision_proof(db, token, execution, bundle(db, token))
     if decision['outcome'] == 'supported':
         return publish(db, state, token, execution, execution)
-    quick_store.finish(db, token, decision['outcome'], decision['reason'], execution)
+    failures = quick_failures.retrieval(db, token) if decision['outcome'] == 'inconclusive' else []
+    if failures:
+        quick_retry.fail(db, token, 'Quick check acquisition failed: ' + '; '.join(failures), execution)
+    else:
+        quick_store.finish(db, token, decision['outcome'], decision['reason'], execution)
     return None

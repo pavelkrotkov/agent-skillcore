@@ -1,10 +1,14 @@
 from x_batch_fixtures import BatchCase
 from x_curator import batch_report, review_outbox
+from x_curator.queue import enqueue
 
 
 class BatchDigestTests(BatchCase):
     def test_one_mixed_result_preserves_exclusions_and_distinguishes_failures(self):
         self.add_items(5)
+        enqueue(self.db)
+        with self.db:
+            self.db.execute("UPDATE jobs SET max_attempts=1 WHERE id='4'")
         original = self.checker
         def disprove(value):
             value['checks'][0]['status'] = 'disproven'

@@ -7,7 +7,7 @@ from .quick_schema import initialize, finish
 from .receipts import digest
 from .revisions import revision
 from .source_evidence import selected_source
-from .quick_replacements import latest
+from .quick_replacements import latest, replacement
 
 POLICY = 'quick-factcheck/v1'
 
@@ -22,6 +22,7 @@ def start(db, token, started):
     with db:
         db.execute('BEGIN IMMEDIATE')
         require_lease(db, token, time.time())
+        identity = replacement(db, job, identity, rev)
         db.execute('INSERT OR IGNORE INTO quick_checks(id,account,source,revision,token,started,deadline) VALUES(?,?,?,?,?,?,?)',
                    (identity, job['account'], job['id'], rev, token, started, min(started + seconds, job['lease_until'] - 2)))
         db.execute('UPDATE quick_checks SET token=? WHERE id=? AND outcome IS NULL', (token, identity))

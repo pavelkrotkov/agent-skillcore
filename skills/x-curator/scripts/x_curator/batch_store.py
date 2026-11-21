@@ -19,10 +19,12 @@ def initialize(db):
 
 
 def close_finished(db, account):
-    db.execute("""UPDATE curation_batches SET state=CASE WHEN EXISTS (
+    wanted = """CASE WHEN EXISTS (
         SELECT 1 FROM curation_members m JOIN jobs j ON j.account=m.account AND j.id=m.source
-        WHERE m.batch=curation_batches.id AND j.state IN ('pending','retry','leased'))
-        THEN 'open' ELSE 'closed' END WHERE account=?""", (account,))
+        WHERE m.batch=b.id AND j.state IN ('pending','retry','leased')) THEN 'open' ELSE 'closed' END"""
+    changed = db.execute(f"SELECT 1 FROM curation_batches b WHERE b.account=? AND b.state!={wanted} LIMIT 1", (account,)).fetchone()
+    if changed:
+        db.execute(f"UPDATE curation_batches AS b SET state={wanted} WHERE b.account=? AND b.state!={wanted}", (account,))
 
 
 def form(db, account, now):

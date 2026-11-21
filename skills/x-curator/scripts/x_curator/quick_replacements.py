@@ -1,4 +1,8 @@
-"""Approved replacements append history; source attempts bound chain resolution."""
+"""Replacement checks append history; source attempts bound chain resolution."""
+import json
+import time
+
+from .receipts import digest
 
 
 def migrate(db):
@@ -26,3 +30,21 @@ def latest(db, account, source, identity):
             raise ValueError('replacement belongs to another source')
         identity = row['replacement']
     raise ValueError('replacement chain exceeds the source attempt bound')
+
+
+def replacement(db, job, identity, revision):
+    # quick_store.start owns the writer transaction: the link and child row commit together.
+    previous = db.execute('''SELECT q.revision FROM quick_retry_failures f JOIN quick_checks q ON q.id=f.check_id
+        WHERE q.account=? AND q.source=? ORDER BY f.created DESC LIMIT 1''', (job['account'], job['id'])).fetchone()
+    if previous and previous['revision'] != revision:
+        raise ValueError('technical retry source revision changed; explicit review required')
+    row = db.execute('''SELECT q.id,q.token FROM quick_checks q JOIN quick_retry_failures f ON f.token=q.token
+        WHERE q.id=?''', (identity,)).fetchone()
+    if row is None:
+        return identity
+    if row['token'] == job['token']:
+        raise ValueError('this technical attempt is already spent')
+    child = digest(['technical-retry/v1', identity, job['attempts']])
+    db.execute('INSERT INTO quick_recoveries VALUES (?,?,?,?,?,?,NULL)',
+               (identity, child, job['account'], job['id'], time.time(), json.dumps({'technical_failure': row['token']})))
+    return child

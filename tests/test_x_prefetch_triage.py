@@ -2,9 +2,16 @@ from x_linked_fixtures import LinkedCase
 from x_curator import batch_report, review_outbox
 from x_curator.quick_failures import MEDIA_REFUSAL
 from x_curator.quick_window import READ_CLOSED
+from x_curator.queue import enqueue
 
 
 class PrefetchTriageTests(LinkedCase):
+    def setUp(self):
+        super().setUp()
+        enqueue(self.db)
+        with self.db:
+            self.db.execute('UPDATE jobs SET max_attempts=attempts+1')
+
     def pending(self, _request):
         return dict(format='compact-v1', outcome='inconclusive', reason='The linked claim remains unresolved.', claims=[])
 

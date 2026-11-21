@@ -66,8 +66,13 @@ Valid publications and existing new-policy decisions/permissions stay untouched.
 ## Activate reviewed defaults
 
 Do not activate this default until #273 records a passing representative qualification
-and reviewed activation decision. The supervisor default keeps semantic organization
-disabled with `--max-sources 0`.
+and reviewed activation decision. Direct supervisor calls keep semantic organization
+opt-in with `--max-sources 0`. The reviewed recurring service explicitly uses
+`--max-sources 5`, restoring bounded automatic organization after source admission.
+Confirm the effective installed command; template changes alone do not update a
+running deployment. Deterministic indexing stays independent and model-free.
+Organization reuses the existing lifetime attempt limits and independent reviews;
+this operating setting grants no source-check retry, deep research or extra allowance.
 
 For an exact retained selection, `zk-refresh --grant-extra-attempt` records a
 separately approved fourth organization attempt. After that attempt is spent,
@@ -80,7 +85,15 @@ sixth attempt. A resume request alone does not approve either allowance.
 
 Pin `PYTHONPATH` to the reviewed code directory in the existing private runtime
 configuration. Install the reviewed `templates/systemd/x-curator-worker@.service`:
-240-second crash-recovery lease and outer timeout (quick checks remain capped at 120 seconds for text or 180 for verified prepared video), full process-group termination, and deferred indexing with `--unspent-only`. This mode holds previously attempted pending/retry or expired jobs for explicit operator recovery; both batch readiness and transactional claims exclude them. It preserves consumed receipts and existing approved recovery tools. Install the
+240-second crash-recovery lease and outer timeout (quick checks remain capped at
+120 seconds for text or 180 for verified prepared video), full process-group
+termination and deferred indexing. The recurring command omits `--unspent-only`:
+technical failures retry after durable 60/120-second backoff within the existing
+total attempt ceiling, preserving parent checks, deadlines and consumed work.
+The optional flag remains an explicit legacy hold mode. Historical technical
+items already held require `recover-technical --account ACCOUNT --source SOURCE` preview and
+its exact `--apply PREVIEW_DIGEST`; no ceiling or HTTP budget is refilled.
+Install the
 reviewed worker timer too: five seconds after each invocation, one-second accuracy.
 Install the reviewed index service/timer alongside it: workers signal a nonblocking
 index pass; the timer catches arrivals during a build and interrupted passes. The

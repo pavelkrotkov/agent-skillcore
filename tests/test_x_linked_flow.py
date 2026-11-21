@@ -49,5 +49,6 @@ class LinkedFlowTests(LinkedCase):
             self.token = token
             return lambda _request: (_ for _ in ()).throw(DeadlineExceeded('synthetic interruption'))
         result = self.run_worker(interrupted)
-        self.assertEqual(result['results'][0]['state'], 'awaiting_review')
+        self.assertEqual(result['results'][0]['state'], 'retry')
+        self.assertEqual(self.db.execute('SELECT count(*) FROM quick_retry_failures').fetchone()[0], 1)
         self.assertEqual(self.db.execute('SELECT count(*) FROM publications').fetchone()[0], 0)

@@ -46,13 +46,13 @@ class QuickFlowTests(QuickCase):
         self.assertEqual(self.db.execute('SELECT state FROM jobs').fetchone()[0], 'excluded')
         self.assertEqual(self.db.execute('SELECT count(*) FROM publications').fetchone()[0], 0)
 
-    def test_unavailable_evidence_is_pending_never_false(self):
+    def test_unavailable_evidence_is_retryable_never_false(self):
         def unavailable(_):
             raise OSError('synthetic unavailable search')
         self.fetch = unavailable
         self.assertIsNone(self.run_check())
         self.assertEqual(self.db.execute('SELECT outcome FROM quick_checks').fetchone()[0], 'inconclusive')
-        self.assertEqual(self.db.execute('SELECT state FROM jobs').fetchone()[0], 'awaiting_review')
+        self.assertEqual(self.db.execute('SELECT state FROM jobs').fetchone()[0], 'retry')
 
     def test_authenticated_model_cannot_publish_unsupported_attributed_facts(self):
         def unsupported(value):

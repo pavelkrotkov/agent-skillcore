@@ -20,7 +20,10 @@ def initialize(db):
         CREATE TABLE IF NOT EXISTS quick_recoveries (
         original TEXT PRIMARY KEY REFERENCES quick_checks(id), replacement TEXT UNIQUE NOT NULL,
         account TEXT NOT NULL, source TEXT NOT NULL, created REAL NOT NULL, evidence TEXT NOT NULL,
-        review_batch TEXT);''')
+        review_batch TEXT);
+        CREATE TABLE IF NOT EXISTS quick_retry_failures (
+        token TEXT PRIMARY KEY REFERENCES attempts(token),check_id TEXT REFERENCES quick_checks(id),
+        created REAL NOT NULL,reason TEXT NOT NULL);''')
     migrate(db)
 
 
