@@ -1,7 +1,7 @@
 """Cancel acquisition at its cutoff; retain its real input without inventing a final turn."""
 import time
 
-from . import execution_failure, model_trace, model_rollout
+from . import execution_failure, model_trace, model_rollout, model_events
 from .deadlines import DeadlineExceeded, until
 from .process_group import execute
 from .receipts import digest
@@ -35,6 +35,7 @@ def capture(db, root, binary, environment, request):
             raise
         status = 'cutoff'
     stopped, events = time.time(), path.read_bytes()
+    model_events.framing(events)
     proof = dict(format=model_trace.FORMAT, request_sha=digest(request), prompt_sha=digest_text(rendered),
                  prompt=rendered, profile=args, images=model_trace.input_images(request),
                  events=events.decode(), rollout=rollout(events, environment).decode())

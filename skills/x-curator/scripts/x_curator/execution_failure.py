@@ -4,7 +4,7 @@ import re
 from . import provider_health
 from .deadlines import DeadlineExceeded
 from .native_search_trace import events
-from .executions import record_log
+from .executions import record_failure_log
 from .worker_errors import WorkerFailure
 
 
@@ -18,7 +18,7 @@ def record(db, state, token, error):
             path = state / 'runs' / token / (row['input_sha'] + '.jsonl')
             log = path.read_bytes() if path.exists() else getattr(error, 'log', b'')
         if log:
-            record_log(db, row['id'], log)
+            record_failure_log(db, row['id'], log)
     failure = provider_failure(error, log)
     if failure:
         provider_health.suspend(db, failure)

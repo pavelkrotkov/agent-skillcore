@@ -1,7 +1,7 @@
 """A fixed ChatGPT subscription route; provider failures never switch billing paths."""
 import shutil
 
-from . import blobs, model_rollout, model_trace, native_search, quick_profile, quick_final_profile
+from . import blobs, model_events, model_rollout, model_trace, native_search, quick_profile, quick_final_profile
 from .codex_profile import command, environment as profile_environment, login_status
 from .media_inputs import attachments, deferred
 from .worker_errors import WorkerFailure
@@ -39,4 +39,5 @@ def run(db, root, binary, environment, request):
     log = output.read_bytes()
     if code:
         raise WorkerFailure("subscription provider unavailable; inspect private execution receipt", log)
+    model_events.framing(log)
     return model_trace.pack(request, rendered, args, log, model_rollout.read(log, environment))

@@ -2,16 +2,22 @@
 from collections import defaultdict
 import json
 
-from .model_trace import native
+from .model_trace import native, records
 from .worker_errors import ModelCompletionError
 
 
-def result(log):
+def framing(log):
+    """Check raw JSON framing without interpreting verdicts or controller proof fields."""
     try:
-        events = native(log)
+        return records(log)
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-        raise ModelCompletionError("malformed model execution") from exc
-    return completed_turn(events)
+        raise ModelCompletionError("malformed model execution", log) from exc
+
+
+def result(log):
+    framing(log)
+    # Nested rollout/input proof validation must retain its original rejection type.
+    return completed_turn(native(log))
 
 
 def completed_turn(events):

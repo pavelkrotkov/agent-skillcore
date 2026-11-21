@@ -6,7 +6,7 @@ import uuid
 from . import quick_linked, quick_store
 from .codex_profile import MODEL
 from .evidence import bundle
-from .executions import record_log
+from .executions import record_log, record_failure_log
 from .leases import require_lease
 from .receipts import digest, encoded
 
@@ -29,7 +29,7 @@ def acquire(db, token, executor, request):
     try:
         receipt = executor.evidence(request)
     except Exception as exc:
-        record_log(db, identity, getattr(exc, 'log', b''))
+        record_failure_log(db, identity, getattr(exc, 'log', b''))
         raise
     record_log(db, identity, receipt['input_proof']['events'].encode())
     with db:
