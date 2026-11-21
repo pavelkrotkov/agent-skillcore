@@ -2,7 +2,7 @@
 
 
 def calls(db, identity, key):
-    return [dict(r) for r in db.execute("SELECT id,token,started,finished FROM executions WHERE json_extract(input,?)=? ORDER BY started,id", ('$.' + key, identity))]
+    return [dict(r) for r in db.execute("SELECT id,token,started,finished,CASE WHEN role='factcheck_evidence' THEN json_extract(output,'$.status') END evidence_status FROM executions WHERE json_extract(input,?)=? ORDER BY started,id", ('$.' + key, identity))]
 
 
 def records(db, run, executions):
@@ -27,8 +27,8 @@ def overruns(records, deadline):
 
 
 def search_usage(run, executions, search_limit):
-    # Unfinished native executions may contain additional queries in unknown trailing bytes.
-    complete = search_limit is not None or all(r['finished'] is not None for r in executions)
+    # A recorded evidence cutoff has a finish time but can leave native usage unobserved.
+    complete = search_limit is not None or all(r['finished'] is not None and r['evidence_status'] != 'cutoff' for r in executions)
     return dict(searches=run['searches'] if complete else None,
                 observed_searches_lower_bound=run['searches'], search_usage_complete=complete)
 
