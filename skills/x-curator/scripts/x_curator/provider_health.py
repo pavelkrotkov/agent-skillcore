@@ -14,6 +14,8 @@ def initialize(db):
     if {'generation', 'failed_at'} <= columns and db.execute("SELECT 1 FROM sqlite_master WHERE name='provider_recoveries'").fetchone():
         return
     with db:
+        db.execute('BEGIN IMMEDIATE')
+        # Recheck columns after reserving the writer: another initializer may have migrated them.
         db.execute('CREATE TABLE IF NOT EXISTS provider_health (route TEXT PRIMARY KEY,retry_at REAL NOT NULL,action TEXT NOT NULL)')
         columns = {row['name'] for row in db.execute('PRAGMA table_info(provider_health)')}
         for name, kind in (('generation', 'TEXT'), ('failed_at', 'REAL')):

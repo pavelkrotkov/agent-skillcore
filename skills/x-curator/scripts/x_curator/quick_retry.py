@@ -4,11 +4,11 @@ import time
 
 from .deadlines import DeadlineExceeded
 from .leases import record_failure
-from .worker_errors import WorkerFailure
+from .worker_errors import WorkerFailure, ModelCompletionError
 
 
 def technical(error):
-    return isinstance(error, (OSError, sqlite3.OperationalError, DeadlineExceeded, WorkerFailure)) or str(error) in (
+    return isinstance(error, (OSError, sqlite3.OperationalError, DeadlineExceeded, WorkerFailure, ModelCompletionError)) or str(error) in (
         'quick-check allowance exhausted', 'fact-check exceeded its durable allowance')
 
 

@@ -23,7 +23,7 @@ class PolicyMetricsTests(BatchCase):
         self.checker = lambda request: b'not a model receipt'
         self.run_batch()
         report = policy_metrics.report(self.db)
-        self.assertEqual(report['cohort_counts'], {'failed_processing': 1})
+        self.assertEqual(report['cohort_counts'], {'processing': 1})
         self.assertEqual(report['runs'][0]['unfinished_receipts'], 1)
         self.assertEqual(report['runs'][0]['model_calls'], 1)
         self.assertEqual(report['qualification'], 'inspect_live_evidence')
