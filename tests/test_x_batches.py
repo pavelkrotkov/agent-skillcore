@@ -31,6 +31,8 @@ class BatchFlowTests(BatchCase):
         self.assertEqual(self.run_batch()['attempted'], 0)
 
     def test_infrastructure_failure_is_visible_not_a_completed_fact_check(self):
+        with self.db:
+            self.db.execute('UPDATE jobs SET max_attempts=attempts+1')
         def failed(_):
             raise OSError('synthetic source transport failure')
         self.fetch = failed

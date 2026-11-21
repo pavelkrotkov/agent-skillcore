@@ -36,8 +36,9 @@ def save(db, value, chat):
 
 
 def status(db):
+    from .operational_status import notifications
     review_store.initialize(db)
-    return {'state': 'checkpoint', 'deliveries': [dict(row) for row in db.execute('''
+    return {'state': 'checkpoint', 'delivery_summary': notifications(db), 'deliveries': [dict(row) for row in db.execute('''
         SELECT id,batch,chat,created,observed IS NOT NULL AS delivered,failure,
         (SELECT count(*) FROM review_decisions WHERE delivery=d.id) AS decisions
         FROM review_deliveries d ORDER BY created,id''')]}

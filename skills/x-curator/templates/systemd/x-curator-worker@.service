@@ -8,7 +8,7 @@ Type=oneshot
 UMask=0077
 Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
 EnvironmentFile=%h/.config/x-curator-fresh/runtime.env
-ExecStart=%h/.local/state/x-curator-runtime/bin/python -m x_curator --state ${CURATOR_STATE} work --max-items 1 --lease-seconds 240 --defer-index --unspent-only
+ExecStart=%h/.local/state/x-curator-runtime/bin/python -m x_curator --state ${CURATOR_STATE} work --max-items 1 --lease-seconds 240 --defer-index
 ExecStartPost=/usr/bin/systemctl --user --no-block start x-curator-index.service
 TimeoutStartSec=240
 TimeoutStopSec=20

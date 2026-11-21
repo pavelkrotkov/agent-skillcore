@@ -7,6 +7,11 @@ from x_curator import batch_report, quick_mcp, quick_sources, review_outbox, rev
 
 
 class RetrievalTriageTests(BatchCase):
+    def setUp(self):
+        super().setUp()
+        with self.db:
+            self.db.execute('UPDATE jobs SET max_attempts=attempts+1')
+
     def checker(self, request):
         source = quick_sources.source(self.db, self.token, 'https://example.test/article')
         result = quick_mcp.call(self.db, self.token, 'read', {'source': source})
@@ -37,8 +42,8 @@ class RetrievalTriageTests(BatchCase):
 
     def test_frozen_request_cannot_grant_research_after_classification_changes(self):
         self.fetch = lambda url: (403, 'text/html', b'Forbidden', None)
-        self.run_batch()
-        with patch('x_curator.batch_report.quick_failures.retrieval', return_value=[]):
+        with patch('x_curator.quick_failures.retrieval', return_value=[]):
+            self.run_batch()
             batch = batch_report.report(self.db)['batches'][0]
             delivery = review_outbox.prepare(self.db, batch['id'], 'synthetic-chat')
         item = json.loads(delivery['payload'])['review'][0]

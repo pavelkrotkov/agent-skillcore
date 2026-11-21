@@ -9,7 +9,7 @@ from .model_trace import verify_request
 from .leases import require_lease
 from .receipts import digest, encoded
 from .storage import sha256
-from .worker_errors import WorkerFailure
+from .worker_errors import WorkerFailure, ModelCompletionError
 from .deadlines import DeadlineExceeded
 from .verification_details import require_receipt
 
@@ -33,7 +33,7 @@ def recorded(db, token, slot, model, runner, request):
     try:
         log = runner(request)
     except (WorkerFailure, DeadlineExceeded) as exc:
-        record_log(db, identity, getattr(exc, 'log', b''))
+        record_failure_log(db, identity, getattr(exc, 'log', b''))
         raise
     record_log(db, identity, log)
     session, output = result(log)
@@ -48,6 +48,14 @@ def record_log(db, identity, log):
         db.execute("UPDATE executions SET log=?,log_sha=? WHERE id=?", (log, sha256(log), identity))
     from .native_search import record
     record(db, identity, log)
+
+
+def record_failure_log(db, identity, log):
+    # record_log stores raw bytes before usage parsing; parsing must not mask the original failure.
+    try:
+        record_log(db, identity, log)
+    except ModelCompletionError:
+        pass
 
 
 def verified_execution(db, identity, role, token, semantic_role=None):

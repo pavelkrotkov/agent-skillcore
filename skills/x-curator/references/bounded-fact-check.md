@@ -68,9 +68,12 @@ captured items and complete historical acquisition remain separate claims.
 
 Ordinary `work` dispatch assigns stable cohorts of at most 50 account/source
 identities. Existing leases and attempt counters remain authoritative. Workers
-claim different members concurrently; restarts keep membership and the original
-quick-check allowance. A delayed retry does not prevent ready work in a later
-cohort. Pending decisions are never automatically claimed as fresh quick checks.
+claim different members concurrently; restarts keep membership and every original
+quick-check receipt and deadline. Technical failures receive a distinct child
+check only while total attempts remain below the existing ceiling (normally
+three), after durable 60/120-second backoff. No HTTP allowance or deep permission
+is added. A delayed retry does not prevent ready work in a later cohort. Genuine
+pending decisions are never automatically claimed as fresh quick checks.
 
 `python -m x_curator --state <private-state> batches` returns the consolidated
 results; `--batch <batch-id>` selects one cohort. Each result separates supported,
@@ -79,8 +82,11 @@ Pending entries retain stable references, the checked revision, unresolved claim
 reason, proposed targeted scope and a 600-second request. This request is a
 proposal, not permission to execute research. Infrastructure failures remain
 visible separately and do not become deep-research approval requests. A completed
-inconclusive answer with recorded search/read failures is also held for operator
-triage, with the original errors shown separately from its unchanged answer.
+inconclusive answer with recorded search/read failures is a technical retry
+candidate within the same finite ceiling, with the original errors retained
+separately from its unchanged answer. Once that ceiling is spent, it remains
+visible for operator triage; factual uncertainty without technical failure stays
+held for a separately scoped human decision.
 A text-reader refusal of explicitly approval-gated media remains a valid scope
 boundary. Draft-validation feedback does not count as a retrieval failure.
 Previously frozen quick-check requests cannot authorize new decisions while the

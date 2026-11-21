@@ -18,3 +18,6 @@ class QuickPhaseTests(PhaseCase):
         measured = policy_metrics.report(self.db)['runs'][0]
         self.assertEqual((measured['model_calls'], measured['observed_retries'], measured['search_limit']), (2, 0, None))
         self.assertEqual(measured['overruns'], [])
+        self.assertIsNone(measured['searches'])
+        self.assertFalse(measured['search_usage_complete'])
+        self.assertEqual(measured['observed_searches_lower_bound'], 4)

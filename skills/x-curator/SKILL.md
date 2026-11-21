@@ -22,16 +22,23 @@ topics are in scope.
    retain hard three queries and approved deep research retains hard twelve.
    One relevant authoritative primary source or two independent credible origins
    supports factual admission. Preserve useful supported parts and attributed opinions.
+   Retry technical failures within the existing total attempt ceiling (normally three)
+   after durable 60/120-second delays; retain each original check and deadline.
+   Genuine factual uncertainty and separately approved research stay held.
 2. Publish supported knowledge and immediately rebuild the deterministic verified-source
    index with zero organizer calls. Keep central disproof out of the wiki; semantic
-   organization is optional and requires explicit `wiki` or `--max-sources N` use.
+   organization is configured explicitly: the recurring service selects at most five
+   sources per cycle; direct calls require `wiki` or `--max-sources N`.
    Keep inconclusive claims and processing failures visible outside the wiki.
 3. Process stable backlog cohorts of fifty alongside daily fresh-arrival cohorts.
    Pending decisions do not stop other items. Two source-worker slots are shared
    by quick checks and explicitly approved research.
 4. Deliver one consolidated decision batch to the originating chat using the
    [native approval bridge](references/chat-approvals.md). Prepared is not delivered;
-   queued is not observed. Never infer a human approval from another agent or schedule.
+   queued is not observed. The curator has no in-process sender; an originating-chat
+   consumer must be scheduled separately and must read back each complete delivery.
+   Inspect `status` for unobserved digests and the indexed/mapped source gap.
+   Never infer a human approval from another agent or schedule.
 5. Deep research requires an exact item/revision/question/scope/budget approval.
    Default proposal: 600 seconds. Full PDFs/videos and extensions require separate
    explicit scope. Do not automatically launch readers, transcription or deep work.

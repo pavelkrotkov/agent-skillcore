@@ -2,6 +2,7 @@
 import json
 
 from . import blobs, native_search_trace, quick_sources
+from .worker_errors import ModelCompletionError
 
 MODE = 'codex-native/three-query-target-v1'
 RESEARCH_MODE = 'codex-native/twelve-query-target-v1'
@@ -22,8 +23,20 @@ def record(db, identity, log):
     request = json.loads(row['input'])
     if enabled(request):
         table = 'deep_runs' if request['policy'] == 'approved-research/v1' else 'quick_checks'
-        with db:
-            db.execute(f'UPDATE {table} SET searches=? WHERE token=?', (len(native_search_trace.usage(log)['queries']), row['token']))
+        # Failed logs retain an observed lower bound, never a complete-count claim.
+        # Publication still uses the unchanged strict native search receipt parser.
+        try:
+            searches = len(native_search_trace.usage(log)['queries'])
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            from .native_usage_prefix import count
+            observed(db, table, row['token'], count(log))
+            raise ModelCompletionError('malformed native execution stream; total search usage is unknown') from exc
+        observed(db, table, row['token'], searches)
+
+
+def observed(db, table, token, searches):
+    with db:
+        db.execute(f'UPDATE {table} SET searches=max(searches,?) WHERE token=?', (searches, token))
 
 
 def register(db, token):

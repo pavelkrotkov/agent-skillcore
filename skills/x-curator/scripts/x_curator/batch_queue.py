@@ -16,7 +16,7 @@ def claim(db, account, lease_seconds=240, unspent_only=False):
     with db:
         db.execute('BEGIN IMMEDIATE')
         now = time.time()
-        recover(db, account, now)
+        recover(db, account, now, technical_retries=not unspent_only)
         if unspent_only:
             hold_spent(db, account)
         if not worker_capacity.available(db, now):

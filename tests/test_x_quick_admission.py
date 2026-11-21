@@ -31,7 +31,7 @@ class QuickAdmissionTests(QuickCase):
         with patch('x_curator.quick_process.publish', side_effect=OSError('synthetic disk failure')):
             self.assertIsNone(self.run_check())
         self.assertEqual(self.db.execute('SELECT outcome FROM quick_checks').fetchone()[0], 'inconclusive')
-        self.assertEqual(self.db.execute('SELECT state FROM jobs').fetchone()[0], 'awaiting_review')
+        self.assertEqual(self.db.execute('SELECT state FROM jobs').fetchone()[0], 'retry')
 
     def test_tool_evidence_after_answer_cannot_support_exclusion(self):
         original = self.checker

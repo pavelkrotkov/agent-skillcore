@@ -25,7 +25,7 @@ class BatchReuseTests(BatchCase):
         self.db = open_store(self.root)
         self.assertEqual(self.run_batch()['attempted'], 1)
         batch = batch_report.report(self.db)['batches'][0]
-        self.assertEqual(batch['counts'], {'supported': 2, 'failed_processing': 1})
+        self.assertEqual(batch['counts'], {'supported': 2, 'processing': 1})
         first, last = self.capture('1'), self.capture('3')
         self.assertEqual((first['body_sha'], first['fetched']), (last['body_sha'], last['fetched']))
         self.assertIn('reused_from', last)

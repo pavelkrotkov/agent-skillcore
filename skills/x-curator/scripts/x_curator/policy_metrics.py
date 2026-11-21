@@ -2,12 +2,12 @@
 from collections import Counter
 import json
 
-from . import batch_report, deep_store, native_search, stage_timings
+from . import batch_report, deep_store, native_search, stage_timings, operational_status
 from .policy_timings import measure
 from .queue import counts as queue_counts
 
 
-def report(db):
+def report(db, root=None):
     batches = batch_report.report(db)['batches']
     runs = [measure(db, dict(r), 'check', native_search.limit(db, r['token'])) for r in db.execute('SELECT * FROM quick_checks ORDER BY started,id')]
     if deep_store.exists(db):
@@ -16,6 +16,7 @@ def report(db):
     return dict(state='checkpoint', historical_complete=False, cohort_counts=dict(counts), queue_counts=queue_counts(db), batches=batches, runs=runs, stage_timings=stage_timings.report(db),
                 qualification='failed' if any(r['overruns'] for r in runs) else 'inspect_live_evidence',
                 source_publication_latency_seconds=first_publication(db),
+                notifications=operational_status.notifications(db), organization=operational_status.organization(db, root),
                 note='Native searches count observed queries against a target of three, not a hard cap; unfinished executions can have additional unknown usage. Source admission timing is separate from a verified connected wiki; report audits the active wiki.')
 
 

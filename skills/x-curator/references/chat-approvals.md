@@ -4,7 +4,11 @@ The trusted outer Codex chat agent uses the existing native chat surface. The
 fact-checking subprocess has only search/read tools; it never receives the
 private approval commands. No Telegram route, custom messaging server or new
 scheduler is installed by this bridge. Platform setup and real human interaction
-remain rollout gates. An unavailable delivery mechanism leaves the outbox pending.
+remain rollout gates. An unavailable delivery mechanism leaves the outbox pending. Periodic curator
+workers only prepare that outbox; they never send chat messages. Install the
+outer consumer as a recurring task on the already configured originating chat.
+It must read existing native messages before sending, then observe the exact
+complete message. Do not count an active curator timer as notification transport.
 
 ## Send and observe
 
@@ -27,6 +31,14 @@ remain rollout gates. An unavailable delivery mechanism leaves the outbox pendin
    observe it instead of posting it again. `review status` shows durable delivery
    and decision counts. Record a platform failure with `review failed --delivery
    <id> --reason <concrete-reason>`; a later successful observation clears it.
+
+`status`, `policy-report` and `review status` distinguish prepared/unobserved,
+observed and explicitly recorded delivery failures. The curator reports that its
+sender capability is external; it cannot certify the health of that separately
+scheduled consumer. A missing readback cannot distinguish an unsent message from
+a sent message awaiting observation, so sent status remains unknown. Record an
+actual transport failure only when the outer consumer attempted the native
+operation and received a concrete failure.
 
 The outbox prevents duplicate logical requests; transport deduplication depends on
 the native agent's destination readback before resending. Once observed, do not

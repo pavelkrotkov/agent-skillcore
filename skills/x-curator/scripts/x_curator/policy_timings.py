@@ -2,7 +2,7 @@
 
 
 def calls(db, identity, key):
-    return [dict(r) for r in db.execute("SELECT id,token,started,finished FROM executions WHERE json_extract(input,?)=? ORDER BY started,id", ('$.' + key, identity))]
+    return [dict(r) for r in db.execute("SELECT id,token,started,finished,CASE WHEN role='factcheck_evidence' THEN json_extract(output,'$.status') END evidence_status FROM executions WHERE json_extract(input,?)=? ORDER BY started,id", ('$.' + key, identity))]
 
 
 def records(db, run, executions):
@@ -26,6 +26,13 @@ def overruns(records, deadline):
     return [r['id'] for r in records if r['finished'] is not None and r['finished'] > deadline]
 
 
+def search_usage(run, executions, search_limit):
+    # A recorded evidence cutoff has a finish time but can leave native usage unobserved.
+    complete = search_limit is not None or all(r['finished'] is not None and r['evidence_status'] != 'cutoff' for r in executions)
+    return dict(searches=run['searches'] if complete else None,
+                observed_searches_lower_bound=run['searches'], search_usage_complete=complete)
+
+
 def measure(db, run, key, search_limit):
     executions = calls(db, run['id'], key)
     attempts, tools = records(db, run, executions)
@@ -33,7 +40,7 @@ def measure(db, run, key, search_limit):
     if search_limit is not None and run['searches'] > search_limit:
         violations.append('search allowance')
     return dict(id=run['id'], account=run['account'], source=run['source'], policy='quick' if key == 'check' else 'approved',
-                outcome=run['outcome'], searches=run['searches'], search_limit=search_limit, model_calls=len(executions), observed_retries=len(attempts)-1,
+                outcome=run['outcome'], **search_usage(run, executions, search_limit), search_limit=search_limit, model_calls=len(executions), observed_retries=len(attempts)-1,
                 allowance_seconds=run['deadline']-run['started'], **durations(db, run, attempts),
                 calls=executions, tools=tools, attempts=attempts, overruns=violations,
                 unfinished_receipts=sum(r['finished'] is None for r in executions + tools))

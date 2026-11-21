@@ -5,16 +5,19 @@ from . import batch_store, review_outbox, review_store, quick_recovery_review
 def flush(db, account):
     review_store.initialize(db)
     with db:
-        db.execute('BEGIN IMMEDIATE')
         route = db.execute('SELECT chat FROM review_routes WHERE account=?', (account,)).fetchone()
         batch_store.close_finished(db, account)
         batches = db.execute('''SELECT id FROM curation_batches b WHERE account=? AND state='closed'
-            AND kind IN ('backlog','daily') AND NOT EXISTS (
+            AND kind IN ('backlog','daily') AND EXISTS (
+                SELECT 1 FROM curation_members m JOIN jobs j ON j.account=m.account AND j.id=m.source
+                WHERE m.batch=b.id AND j.state IN ('awaiting_review','needs_action')) AND NOT EXISTS (
                 SELECT 1 FROM review_deliveries d WHERE d.batch=b.id) ORDER BY created,id''', (account,)).fetchall()
     if route is None:
         return []
     results = [prepare(db, row['id'], route['chat']) for row in batches]
-    for row in db.execute("SELECT id FROM curation_batches WHERE account=? AND state='closed' AND kind IN ('backlog','daily')", (account,)).fetchall():
+    for row in db.execute("""SELECT DISTINCT b.id FROM curation_batches b JOIN curation_members m ON m.batch=b.id
+        JOIN quick_recoveries r ON r.account=m.account AND r.source=m.source
+        WHERE b.account=? AND b.state='closed' AND b.kind IN ('backlog','daily') AND r.review_batch IS NULL""", (account,)).fetchall():
         value = quick_recovery_review.prepare(db, row['id'], route['chat'])
         if value:
             results.append({'batch': value['batch'], 'delivery': value['id']})

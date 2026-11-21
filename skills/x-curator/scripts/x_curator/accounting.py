@@ -1,6 +1,6 @@
 """Reconcile every selected identity against audited publications and an active wiki."""
 import json
-from . import provider_health, wiki_store, cycle_store
+from . import provider_health, wiki_store, cycle_store, operational_status
 from .process_liveness import state as liveness
 from .queue import enqueue
 from .receipts import initialize as receipts
@@ -27,7 +27,8 @@ def report(db, root, *, wait_for_wiki=False):
     return {'state': 'checkpoint', 'historical_complete': False,
             'coverage_action': 'Recover older likes through a fresh official X archive; timeline coverage is unproven.',
             'selected_sources': len(sources), 'counts': counts, 'sources': sources, 'invalidated': invalidated,
-            'wiki': wiki, 'operations': operations(db), 'provider': provider_health.blocked(db)}
+            'wiki': wiki, 'notifications': operational_status.notifications(db),
+            'organization': operational_status.organization(db, root), 'operations': operations(db), 'provider': provider_health.blocked(db)}
 
 
 def wiki_status(db, root):
