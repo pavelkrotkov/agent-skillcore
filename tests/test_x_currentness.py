@@ -38,7 +38,7 @@ class CurrentnessTests(unittest.TestCase):
         post['card']['legacy']['binding_values'][0]['value']['image_value']['url'] = 'https://pbs.twimg.com/card_img/two'
         self.assertNotEqual(revision(original), revision(changed))
         self.assertEqual(currentness(original), currentness(changed))
-        self.assertEqual(currentness(original)[0], 'source-currentness/v8')
+        self.assertEqual(currentness(original)[0], 'source-currentness/v9')
         self.assertEqual(original, source())
 
     def test_uncited_biographies_refresh_but_cited_biographies_block(self):

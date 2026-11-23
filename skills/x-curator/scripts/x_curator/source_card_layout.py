@@ -1,11 +1,13 @@
 """Strip typed native preview layout, retaining alt text and unknown values."""
 from .source_evidence import branch
+from .source_card_alts import strip_duplicate
 
 
 
-def strip_preview_cdn(value):
+def strip_preview_cdn(value, alts):
     image = branch(value, 'image_value')
     if str(image.get('url', '')).startswith('https://pbs.twimg.com/'):
+        strip_duplicate(value, image, alts)
         image.pop('url', None)
         numbers(image, ('width', 'height'))
     strip_empty(value, 'image_value', 'IMAGE')

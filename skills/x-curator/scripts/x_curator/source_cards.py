@@ -2,9 +2,9 @@
 from .source_evidence import branch, card_bindings
 from .profile_links import quoted_alias
 from .source_card_layout import strip_preview_cdn, strip_preview_palette
+from .source_card_alts import explicit_alts, PREVIEW_STEMS
 
 
-PREVIEW_STEMS = ('thumbnail_image', 'summary_photo_image', 'photo_image_full_size', 'player_image')
 PREVIEW_COLORS = frozenset(stem + '_color' for stem in PREVIEW_STEMS)
 PREVIEW_IMAGES = frozenset(stem + suffix
                           for stem in PREVIEW_STEMS
@@ -14,15 +14,16 @@ LIVE_METRICS = ('app_star_rating', 'app_num_ratings')
 
 
 def normalize(card, quotes):
-    emptied = {id(value) for name, value in card_bindings(card.get('binding_values') or [])
-               if normalize_value(name, value, quotes)}
+    bindings = list(card_bindings(card.get('binding_values') or []))
+    alts = explicit_alts(bindings, PREVIEW_STEMS)
+    emptied = {id(value) for name, value in bindings if normalize_value(name, value, quotes, alts)}
     compact(card, emptied)
 
 
-def normalize_value(name, value, quotes):
+def normalize_value(name, value, quotes, alts):
     original = bool(value)
     if name in PREVIEW_IMAGES:
-        strip_preview_cdn(value)
+        strip_preview_cdn(value, alts)
     if name in PREVIEW_COLORS:
         strip_preview_palette(value)
     if name in LIVE_METRICS and not quoted_alias(value.get('string_value'), quotes):

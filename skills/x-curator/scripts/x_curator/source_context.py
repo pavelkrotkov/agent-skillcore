@@ -4,14 +4,21 @@ from .profile_links import quoted_alias
 
 
 def normalize_mentions(post, quotes):
-    for mention in branch(post, 'legacy', 'entities').get('user_mentions', []):
-        if not isinstance(mention, dict):
-            continue
-        if not isinstance(mention.get('id_str'), str) or not mention['id_str']:
-            continue
-        for field in ('name', 'screen_name'):
-            if not quoted_alias(mention.get(field), quotes):
-                mention.pop(field, None)
+    entities = (branch(post, 'legacy', 'entities'),
+                branch(post, 'note_tweet', 'note_tweet_results', 'result', 'entity_set'))
+    for entity in entities:
+        for mention in entity.get('user_mentions', []):
+            normalize_mention(mention, quotes)
+
+
+def normalize_mention(mention, quotes):
+    if not isinstance(mention, dict):
+        return
+    if not isinstance(mention.get('id_str'), str) or not mention['id_str']:
+        return
+    for field in ('name', 'screen_name'):
+        if not quoted_alias(mention.get(field), quotes):
+            mention.pop(field, None)
 
 
 def normalize_place(post):
