@@ -34,7 +34,10 @@ class GraphStatusTests(OperationalCase):
             CREATE TABLE wiki_sources(publication TEXT, attempts INTEGER, run TEXT, action TEXT);
             CREATE TABLE wiki_recovery_grants(publication TEXT);
             INSERT INTO publications(id,state) VALUES ('new','published'),('spent','published'),
-                ('granted','published'),('mapped','published'),('withdrawn','withdrawn');
+                ('granted','published'),('mapped','published'),('withdrawn','withdrawn'),('held','published');
+            UPDATE publications SET account='account',source=id;
+            INSERT INTO jobs SELECT account,source,'published' FROM publications;
+            UPDATE jobs SET state='needs_action' WHERE id='held';
             INSERT INTO wiki_sources VALUES ('spent',3,NULL,'DeadlineExceeded'),
                 ('granted',3,NULL,'rejected'),('mapped',1,'accepted','verified'),
                 ('withdrawn',3,NULL,'rejected');
