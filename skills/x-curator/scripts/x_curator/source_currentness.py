@@ -5,7 +5,7 @@ from .source_presentation import normalize
 from .source_evidence import branch, nodes
 from .profile_links import strip_entity_links, quoted_alias as cited
 
-CURRENTNESS_POLICY = 'source-currentness/v8'
+CURRENTNESS_POLICY = 'source-currentness/v9'
 
 
 def currentness(entry, quotes=()):
