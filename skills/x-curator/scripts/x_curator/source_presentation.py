@@ -7,7 +7,7 @@ from .profile_links import normalize_profile_urls, normalize_homepage
 
 
 
-def normalize(post, quotes=()):
+def normalize(post, quotes=(), *, preparation=False):
     post = post.get('tweet', post)
     post.pop('source', None)
     branch(post, 'legacy').pop('source', None)
@@ -20,6 +20,6 @@ def normalize(post, quotes=()):
     normalize_profile_urls(profile, quotes)
     normalize_homepage(profile, quotes)
     normalize_quote_link(post, quotes)
-    normalize_mentions(post, quotes)
+    normalize_mentions(post, quotes, preparation=preparation)
     normalize_place(post)
-    normalize_card(branch(post, 'card', 'legacy'), quotes)
+    normalize_card(branch(post, 'card', 'legacy'), quotes, preparation=preparation)

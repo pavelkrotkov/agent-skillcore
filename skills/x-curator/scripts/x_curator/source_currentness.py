@@ -8,17 +8,18 @@ from .profile_links import strip_entity_links, quoted_alias as cited
 CURRENTNESS_POLICY = 'source-currentness/v9'
 
 
-def currentness(entry, quotes=()):
+def currentness(entry, quotes=(), *, preparation=False):
+    # Prepared manifests retain the original v8 hash contract across publication-policy updates.
     comparable = revision(entry)
     tweet = comparable['tweet']
     for post in (tweet, branch(tweet, 'quoted_status_result', 'result')):
-        normalize(post, quotes)
+        normalize(post, quotes, preparation=preparation)
         strip_uncited_profile(post, quotes)
         retain_profile_evidence(branch(post.get('tweet', post), 'core', 'user_results', 'result'), quotes)
     for node in nodes(comparable):
         if node.get('__typename') == 'User':
             retain_profile_evidence(node, quotes)
-    return [CURRENTNESS_POLICY, comparable]
+    return ['source-currentness/v8' if preparation else CURRENTNESS_POLICY, comparable]
 
 
 def strip_uncited_profile(post, quotes):
