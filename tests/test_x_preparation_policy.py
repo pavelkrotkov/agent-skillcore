@@ -3,19 +3,20 @@ from unittest.mock import patch
 
 from x_video_fixtures import PreparedVideoCase
 from x_fixtures import Client, collect, envelope, tweet_entry
-from x_curator import prepared_video
+from x_curator import blobs, prepared_video
 from x_curator.evidence import bundle
 from x_curator.source_evidence import selected_source
 from x_curator.source_currentness import currentness
-from x_curator.receipts import digest
+from x_curator.receipts import encoded
 
 
 class PreparationPolicyTests(PreparedVideoCase):
-    def historical(self):
-        with patch('x_curator.source_currentness.CURRENTNESS_POLICY', 'source-currentness/v8'):
-            payload = self.payload()
-            identity = prepared_video.store(self.db, self.job, payload, 'Approved historical preparation')
-        return identity
+    def historical(self, revision='832531cd1bfc31350589f8b3ffae816dc27631f8486747efc7fca3adb9305205'):
+        payload = self.payload()
+        manifest = json.loads(blobs.read(self.db, payload['preparation_sha']))
+        manifest['revision'] = revision
+        payload['preparation_sha'] = blobs.put(self.db, encoded(manifest))
+        return prepared_video.store(self.db, self.job, payload, 'Approved historical preparation')
 
     def test_original_preparation_survives_publication_policy_change_without_rewrite(self):
         identity = self.historical()
@@ -53,10 +54,10 @@ class PreparationPolicyTests(PreparedVideoCase):
                 url='https://pbs.twimg.com/card_img/example', alt='Retained alt'))),
             dict(key='thumbnail_image_alt_text', value=dict(type='STRING', string_value='Retained alt'))]))
         collect(self.db, Client([(200, envelope([dict(type='TimelineAddEntries', entries=[entry])]))]), 'likes', new=True, delay=0)
-        identity = self.historical()
+        identity = self.historical('3a2087e90ff7a71f873863027a0aa7dfb18173f60f8a7b74d922bc6e5a0abedc')
         self.assertEqual(prepared_video.revision(self.db, self.job),
                          '3a2087e90ff7a71f873863027a0aa7dfb18173f60f8a7b74d922bc6e5a0abedc')
-        self.assertNotEqual(digest(currentness(entry)), prepared_video.revision(self.db, self.job))
+        self.assertNotEqual(currentness(entry)[1], currentness(entry, preparation=True)[1])
         payload = json.loads(self.db.execute('SELECT payload FROM prepared_videos WHERE id=?', (identity,)).fetchone()[0])
         prepared_video.verify_one(self.db, payload, self.job)
         post['note_tweet']['note_tweet_results']['result']['entity_set']['user_mentions'][0]['name'] = 'Changed author'
