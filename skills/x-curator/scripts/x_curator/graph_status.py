@@ -4,6 +4,7 @@ from pathlib import Path
 
 from .publication_files import private_target
 from .storage import sha256
+from .mapping_status import status as mapping_status
 
 
 def exists(db, table):
@@ -30,6 +31,7 @@ def organization(db, root=None):
                  sources_indexed=None, sources_mapped=None, sources_unmapped=None, sources_awaiting_index=None,
                  last_accepted_organization=last_accepted(db),
                  scheduling="Inspect the effective supervise --max-sources limit; zero disables organization.")
+    value.update(mapping_status(db))
     if root is None:
         return dict(value, state="not_requested")
     try:

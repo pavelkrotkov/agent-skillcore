@@ -28,3 +28,24 @@ class GraphStatusTests(OperationalCase):
         self.assertIsNone(status["sources_mapped"])
         self.assertIn("hash", status["action"])
         self.assertEqual(json.loads((self.root/"wiki/CURRENT.json").read_text())["generation"], "synthetic")
+
+    def test_mapping_status_counts_eligible_and_exhausted_without_mutating_budgets(self):
+        self.db.executescript("""
+            CREATE TABLE wiki_sources(publication TEXT, attempts INTEGER, run TEXT, action TEXT);
+            CREATE TABLE wiki_recovery_grants(publication TEXT);
+            INSERT INTO publications(id,state) VALUES ('new','published'),('spent','published'),
+                ('granted','published'),('mapped','published'),('withdrawn','withdrawn'),('held','published');
+            UPDATE publications SET account='account',source=id;
+            INSERT INTO jobs SELECT account,source,'published' FROM publications;
+            UPDATE jobs SET state='needs_action' WHERE id='held';
+            INSERT INTO wiki_sources VALUES ('spent',3,NULL,'DeadlineExceeded'),
+                ('granted',3,NULL,'rejected'),('mapped',1,'accepted','verified'),
+                ('withdrawn',3,NULL,'rejected');
+            INSERT INTO wiki_recovery_grants VALUES ('granted');
+        """)
+        before = self.db.total_changes
+        value = operational_status.organization(self.db)
+        self.assertEqual((value['mapping_eligible'], value['mapping_exhausted']), (2, 1))
+        self.assertEqual(value['mapping_failure_reasons'], [dict(action='DeadlineExceeded', sources=1),
+                                                           dict(action='rejected', sources=1)])
+        self.assertEqual(self.db.total_changes, before)

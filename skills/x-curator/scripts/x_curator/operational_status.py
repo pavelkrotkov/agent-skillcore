@@ -1,6 +1,7 @@
 """Recorded delivery and graph status never substitutes for a proof audit."""
 from .graph_status import exists, organization
 from .storage import coverage
+from .notification_status import recent, state
 
 
 def notifications(db):
@@ -12,7 +13,8 @@ def notifications(db):
             coalesce(sum(failure IS NOT NULL),0) AS recorded_failures,
             max(CASE WHEN observed IS NOT NULL THEN created END) AS last_observed_prepared_at
             FROM review_deliveries""").fetchone())
-    return dict(counts, state="external_consumer_required" if counts["unobserved"] else "idle",
+    counts.update(recent(db, counts["last_observed_prepared_at"]))
+    return dict(counts, state=state(counts),
                 in_process_automatic_sender=False, sent=None,
                 action="Curator prepares digests but runs no sender. The scheduled originating-chat consumer must send and observe the complete native readback; preparation is not delivery. Sent-without-readback is not recorded.")
 

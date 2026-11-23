@@ -3,17 +3,17 @@ import json
 import time
 from .retention_files import DAY, table
 from .receipts import encoded
+from . import cycle_diagnostics
 
 
 def summary(result):
     value = {key: result[key] for key in ('state', 'cycle', 'action') if key in result}
     if dependency := result.get('work', {}).get('dependency'):
         value['work'] = dict(dependency=dependency)
-    report = result.get('report', {})
-    if report:
-        value['report'] = {key: report[key] for key in ('selected_sources', 'counts') if key in report}
-        manifest = report.get('wiki', {}).get('manifest', {})
-        value['report']['generation'] = manifest.get('generation', report.get('generation'))
+    if result.get('wiki'):
+        value['wiki'] = cycle_diagnostics.wiki(result['wiki'])
+    if result.get('report'):
+        value['report'] = cycle_diagnostics.report(result['report'])
     return value
 
 
