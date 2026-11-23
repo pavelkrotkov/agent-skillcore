@@ -45,3 +45,15 @@ class OperationalStatusTests(OperationalCase):
             with patch.object(index_pending,"previous",return_value={"previous"}),patch.object(index_pending,"wiki",return_value={"state":"checkpoint"}) as build:
                 index_pending.run.__wrapped__(self.db,self.root)
         build.assert_called_once_with(self.db,self.root,0)
+
+    def test_old_unobserved_deliveries_are_separate_from_pending_current_delivery(self):
+        self.db.executemany("INSERT INTO review_deliveries VALUES (?,?,?,?)",
+                           [('old',None,'old failure',1),('read','native readback',None,2)])
+        value = operational_status.notifications(self.db)
+        self.assertEqual(value['state'], 'historical_unobserved')
+        self.assertEqual(value['pending_since_last_observed'], 0)
+        self.assertEqual(value['failures_since_last_observed'], 0)
+        self.db.execute("INSERT INTO review_deliveries VALUES ('new',NULL,'new failure',3)")
+        value = operational_status.notifications(self.db)
+        self.assertEqual(value['pending_since_last_observed'], 1)
+        self.assertEqual(value['failures_since_last_observed'], 1)
