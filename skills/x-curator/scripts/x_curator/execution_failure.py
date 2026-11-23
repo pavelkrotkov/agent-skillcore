@@ -37,7 +37,8 @@ def transport_exhausted(log):
         return not any(row.get('type') == 'turn.completed' for row in rows) and any(
             row.get('type') == 'error' and re.match(
                 r'Reconnecting\.\.\. (?:(\d+)/\1 \(stream disconnected before completion:'
-                r'|\d+/\d+ \(exceeded retry limit, last status: 429 Too Many Requests[,\)])',
+                r'|\d+/\d+ \(exceeded retry limit, last status: 429 Too Many Requests[,\)]'
+                r'|\d+/\d+ \(Selected model is at capacity\.)',
                 row.get('message', '')) for row in rows)
     except (ValueError, UnicodeError, TypeError, AttributeError):
         return False
