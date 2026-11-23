@@ -13,9 +13,9 @@ PREVIEW_IMAGES = frozenset(stem + suffix
 LIVE_METRICS = ('app_star_rating', 'app_num_ratings')
 
 
-def normalize(card, quotes):
+def normalize(card, quotes, *, preparation=False):
     bindings = list(card_bindings(card.get('binding_values') or []))
-    alts = explicit_alts(bindings, PREVIEW_STEMS)
+    alts = set() if preparation else explicit_alts(bindings, PREVIEW_STEMS)
     emptied = {id(value) for name, value in bindings if normalize_value(name, value, quotes, alts)}
     compact(card, emptied)
 

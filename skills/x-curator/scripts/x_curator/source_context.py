@@ -3,10 +3,10 @@ from .source_evidence import branch
 from .profile_links import quoted_alias
 
 
-def normalize_mentions(post, quotes):
+def normalize_mentions(post, quotes, *, preparation=False):
     entities = (branch(post, 'legacy', 'entities'),
                 branch(post, 'note_tweet', 'note_tweet_results', 'result', 'entity_set'))
-    for entity in entities:
+    for entity in entities[:1] if preparation else entities:
         for mention in entity.get('user_mentions', []):
             normalize_mention(mention, quotes)
 

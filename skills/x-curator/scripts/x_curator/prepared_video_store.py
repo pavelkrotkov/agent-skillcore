@@ -9,6 +9,7 @@ from .prepared_video_urls import urls, capacity
 from .video_transcript import qualified
 
 
+
 def initialize(db):
     db.execute('''CREATE TABLE IF NOT EXISTS prepared_videos (
         id TEXT PRIMARY KEY,account TEXT NOT NULL,source TEXT NOT NULL,revision TEXT NOT NULL,
@@ -17,7 +18,7 @@ def initialize(db):
 
 
 def revision(db, job):
-    return digest(currentness(selected_source(db, job)['entry']))
+    return digest(currentness(selected_source(db, job)['entry'], preparation=True))
 
 
 def store(db, job, payload, reason):
